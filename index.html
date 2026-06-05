@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEENG Addon Editor</title>
+    <style>
+        :root {
+            --bg-color: #1e1e24;
+            --panel-bg: #2a2a32;
+            --border-color: #3f3f46;
+            --text-color: #e4e4e7;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: #fff; }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-danger:hover { background-color: #dc2626; }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-panel {
+            flex: 2;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .preview-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            background: #18181b;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea { resize: vertical; min-height: 60px; }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            background: #23232a;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .checkbox-group input { cursor: pointer; }
+
+        .section-title {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #3b82f6;
+            font-size: 1.1rem;
+        }
+
+        .file-tree {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            white-space: pre;
+            background: #18181b;
+            padding: 15px;
+            border-radius: 4px;
+            flex: 1;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>SEENG Addon Configuration Editor</h1>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-danger" data-action="reset">Очистить черновик</button>
+            <button class="btn" data-action="export">Скачать .ZIP Аддон</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Левая панель: Ввод данных -->
+        <div class="editor-panel" id="editorForm">
+            <!-- Корневая папка -->
+            <div class="section-title">Основная информация (Корневая папка)</div>
+            <div class="form-group">
+                <label>Название папки мода (латиница, без пробелов)</label>
+                <input type="text" data-bind="modName" placeholder="My_Awesome_SEENG_Addon">
+            </div>
+            <div class="form-group">
+                <label>Краткое описание (SEENG_desc.txt)</label>
+                <textarea data-bind="descShort" placeholder="Введите краткое описание мода..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Полное описание (SEENG_descBIG.txt)</label>
+                <textarea data-bind="descLong" style="min-height: 120px;" placeholder="Введите расширенное описание для Steam/Внутри игры..."></textarea>
+            </div>
+
+            <!-- Конфиги мода -->
+            <div class="section-title">Конфигурации (.SBC)</div>
+            <div class="form-group">
+                <label>Содержимое SEENG_Config.sbc (XML)</label>
+                <textarea data-bind="configSbc" style="font-family: monospace; min-height: 150px;"></textarea>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="useTransmission" data-bind-bool="useTransmission">
+                <label for="useTransmission">Включить SEENG_TransmissionConfig.sbc (Опционально)</label>
+            </div>
+            <div class="form-group" id="transmissionContainer" style="display:none; margin-top:10px;">
+                <label>Содержимое SEENG_TransmissionConfig.sbc</label>
+                <textarea data-bind="transmissionSbc" style="font-family: monospace; min-height: 100px;"></textarea>
+            </div>
+
+            <!-- Папка Data -->
+            <div class="section-title">Папка Data (Опциональные компоненты)</div>
+            <p style="font-size: 0.85rem; color:#a1a1aa; margin-top:-10px;">Отметьте файлы, которые необходимо создать в каталоге Data:</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="checkbox-group"><input type="checkbox" id="d_engine" data-bind-bool="data_engine"><label for="d_engine">seeng_engine.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_ambience" data-bind-bool="data_ambience"><label for="d_ambience">seeng_ambience.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_thrusters" data-bind-bool="data_thrusters"><label for="d_thrusters">seeng_thrusters.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_maneuver" data-bind-bool="data_maneuver"><label for="d_maneuver">seeng_maneuver.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_car_engine" data-bind-bool="data_car_engine"><label for="d_car_engine">seeng_car_engine.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_car_engineADV" data-bind-bool="data_car_engineADV"><label for="d_car_engineADV">seeng_car_engineADV.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_car_tracks" data-bind-bool="data_car_tracks"><label for="d_car_tracks">seeng_car_tracks.sbc</label></div>
+                <div class="checkbox-group"><input type="checkbox" id="d_car_wheels" data-bind-bool="data_car_wheels"><label for="d_car_wheels">seeng_car_wheels.sbc</label></div>
+            </div>
+
+            <!-- Папка Audio -->
+            <div class="section-title">Звуковой пак (AUDIO_SEENG_addonprefix)</div>
+            <div class="form-group">
+                <label>Префикс аудио-папки (addonprefix)</label>
+                <input type="text" data-bind="audioPrefix" placeholder="myaddon">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="generateAudio" data-bind-bool="useAudio">
+                <label for="generateAudio">Создать структуру папок AUDIO_SEENG_*</label>
+            </div>
+        </div>
+
+        <!-- Правая панель: Дерево файлов -->
+        <div class="preview-panel">
+            <h3>Ожидаемая структура архива</h3>
+            <div class="file-tree" id="fileTreePreview"></div>
+        </div>
+    </div>
+
+    <script>
+        // Изначальный дефолтный стейт приложения
+        const DEFAULT_STATE = {
+            modName: 'Custom_SEENG_Mod',
+            descShort: 'Базовое описание аддона.',
+            descLong: 'Полное описание аддона со всеми подробностями и списком изменений.',
+            configSbc: '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <!-- Конфигурация мода -->\n</Definitions>',
+            useTransmission: false,
+            transmissionSbc: '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <!-- Трансмиссия -->\n</Definitions>',
+            audioPrefix: 'custom',
+            useAudio: true,
+            data_engine: true,
+            data_ambience: false,
+            data_thrusters: false,
+            data_maneuver: false,
+            data_car_engine: false,
+            data_car_engineADV: false,
+            data_car_tracks: false,
+            data_car_wheels: false
+        };
+
+        let state = JSON.parse(localStorage.getItem('seeng_editor_draft')) || { ...DEFAULT_STATE };
+
+        // Инициализация интерфейса и привязка данных
+        function init() {
+            // Привязка текстовых полей
+            document.querySelectorAll('[data-bind]').forEach(el => {
+                const prop = el.getAttribute('data-bind');
+                el.value = state[prop] || '';
+            });
+
+            // Привязка чекбоксов
+            document.querySelectorAll('[data-bind-bool]').forEach(el => {
+                const prop = el.getAttribute('data-bind-bool');
+                el.checked = !!state[prop];
+            });
+
+            toggleConditionalFields();
+            renderFileTree();
+        }
+
+        function saveState() {
+            localStorage.setItem('seeng_editor_draft', JSON.stringify(state));
+            renderFileTree();
+        }
+
+        function toggleConditionalFields() {
+            document.getElementById('transmissionContainer').style.display = state.useTransmission ? 'block' : 'none';
+        }
+
+        // Рендеринг дерева файлов на основе текущего стейта
+        function renderFileTree() {
+            const root = state.modName || 'Название_мода';
+            let tree = `${root}/\n`;
+            tree += `├── SEENG_Config.sbc\n`;
+            tree += `├── SEENG_desc.txt\n`;
+            tree += `├── SEENG_descBIG.txt\n`;
+            tree += `├── SEENG_thumb.png (заглушка)\n`;
+            tree += `├── thumb.jpg (заглушка)\n`;
+            
+            if (state.useTransmission) {
+                tree += `├── SEENG_TransmissionConfig.sbc\n`;
+            }
+
+            // Секция Data
+            let hasData = ['data_engine','data_ambience','data_thrusters','data_maneuver','data_car_engine','data_car_engineADV','data_car_tracks','data_car_wheels'].some(k => state[k]);
+            if (hasData) {
+                tree += `├── Data/\n`;
+                if (state.data_engine) tree += `│   ├── seeng_engine.sbc\n`;
+                if (state.data_ambience) tree += `│   ├── seeng_ambience.sbc\n`;
+                if (state.data_thrusters) tree += `│   ├── seeng_thrusters.sbc\n`;
+                if (state.data_maneuver) tree += `│   ├── seeng_maneuver.sbc\n`;
+                if (state.data_car_engine) tree += `│   ├── seeng_car_engine.sbc\n`;
+                if (state.data_car_engineADV) tree += `│   ├── seeng_car_engineADV.sbc\n`;
+                if (state.data_car_tracks) tree += `│   ├── seeng_car_tracks.sbc\n`;
+                if (state.data_car_wheels) tree += `│   ├── seeng_car_wheels.sbc\n`;
+            }
+
+            // Секция Audio
+            if (state.useAudio) {
+                const pfx = state.audioPrefix || 'addonprefix';
+                tree += `└── AUDIO_SEENG_${pfx}/\n`;
+                tree += `    ├── Engine_SEENG/\n`;
+                tree += `    ├── Maneuver_SEENG/\n`;
+                tree += `    ├── Thrusters_SEENG/\n`;
+                tree += `    └── ShipSystems_SEENG/\n`;
+            }
+
+            document.getElementById('fileTreePreview').textContent = tree;
+        }
+
+        // Глобальный слушатель изменений (Event Delegation)
+        document.addEventListener('input', (e) => {
+            if (e.target.hasAttribute('data-bind')) {
+                const prop = e.target.getAttribute('data-bind');
+                state[prop] = e.target.value;
+                saveState();
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.hasAttribute('data-bind-bool')) {
+                const prop = e.target.getAttribute('data-bind-bool');
+                state[prop] = e.target.checked;
+                toggleConditionalFields();
+                saveState();
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const action = e.target.getAttribute('data-action');
+            if (action === 'reset') {
+                if(confirm('Вы уверены, что хотите сбросить черновик?')) {
+                    state = { ...DEFAULT_STATE };
+                    localStorage.removeItem('seeng_editor_draft');
+                    init();
+                }
+            } else if (action === 'export') {
+                exportToZip();
+            }
+        });
+
+
+        // ЛЕГКОВЕСНЫЙ ZIP-АРХИВАТОР НА СТОРОНЕ КЛИЕНТА (Без сторонних библиотек)
+        function exportToZip() {
+            const files = [];
+            const root = (state.modName || 'Unnamed_Mod').trim() + '/';
+
+            // Текстовый энкодер
+            const encoder = new TextEncoder();
+            
+            // Заглушка для картинок (1x1 прозрачный пиксель в формате PNG/JPG)
+            const base64Png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            const imgUint8 = Uint8Array.from(atob(base64Png), c => c.charCodeAt(0));
+
+            // Вспомогательная функция добавления файла
+            function addFile(path, content, isBinary = false) {
+                files.push({
+                    name: root + path,
+                    data: isBinary ? content : encoder.encode(content)
+                });
+            }
+
+            // Добавляем корневые файлы
+            addFile('SEENG_Config.sbc', state.configSbc);
+            addFile('SEENG_desc.txt', state.descShort);
+            addFile('SEENG_descBIG.txt', state.descLong);
+            addFile('SEENG_thumb.png', imgUint8, true);
+            addFile('thumb.jpg', imgUint8, true);
+
+            if (state.useTransmission) {
+                addFile('SEENG_TransmissionConfig.sbc', state.transmissionSbc);
+            }
+
+            // Добавляем файлы из папки Data
+            const sbcSkeleton = '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n</Definitions>';
+            if (state.data_engine) addFile('Data/seeng_engine.sbc', sbcSkeleton);
+            if (state.data_ambience) addFile('Data/seeng_ambience.sbc', sbcSkeleton);
+            if (state.data_thrusters) addFile('Data/seeng_thrusters.sbc', sbcSkeleton);
+            if (state.data_maneuver) addFile('Data/seeng_maneuver.sbc', sbcSkeleton);
+            if (state.data_car_engine) addFile('Data/seeng_car_engine.sbc', sbcSkeleton);
+            if (state.data_car_engineADV) addFile('Data/seeng_car_engineADV.sbc', sbcSkeleton);
+            if (state.data_car_tracks) addFile('Data/seeng_car_tracks.sbc', sbcSkeleton);
+            if (state.data_car_wheels) addFile('Data/seeng_car_wheels.sbc', sbcSkeleton);
+
+            // Добавляем структуру папок Audio (в ZIP каталоги обозначаются слешем на конце)
+            if (state.useAudio) {
+                const pfx = state.audioPrefix || 'addonprefix';
+                const audioRoot = `AUDIO_SEENG_${pfx}/`;
+                addFile(`${audioRoot}Engine_SEENG/read_me.txt`, "Поместите сюда звуковые файлы двигателей.");
+                addFile(`${audioRoot}Maneuver_SEENG/read_me.txt`, "Поместите сюда звуковые файлы маневровых систем.");
+                addFile(`${audioRoot}Thrusters_SEENG/read_me.txt`, "Поместите сюда звуковые файлы трастеров.");
+                addFile(`${audioRoot}ShipSystems_SEENG/read_me.txt`, "Поместите сюда общие звуковые файлы систем корабля.");
+            }
+
+            // Алгоритм подсчета CRC32 для корректной сборки ZIP
+            function crc32(Uint8Arr) {
+                let table = [];
+                for (let i = 0; i < 256; i++) {
+                    let c = i;
+                    for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                    table[i] = c;
+                }
+                let crc = 0 ^ (-1);
+                for (let i = 0; i < Uint8Arr.length; i++) {
+                    crc = (crc >>> 8) ^ table[(crc ^ Uint8Arr[i]) & 0xFF];
+                }
+                return (crc ^ (-1)) >>> 0;
+            }
+
+            // Сборка бинарного ZIP структуры
+            let zipParts = [];
+            let centralDirectory = [];
+            let offset = 0;
+
+            files.forEach(file => {
+                const filenameBytes = encoder.encode(file.name);
+                const fileCrc = crc32(file.data);
+                const size = file.data.length;
+
+                // Local File Header
+                const lfh = new Uint8Array(30 + filenameBytes.length);
+                lfh.set([0x50, 0x4B, 0x03, 0x04, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0); // Signature & basic flags
+                new DataView(lfh.buffer).setUint32(14, fileCrc, true);
+                new DataView(lfh.buffer).setUint32(18, size, true); // compressed size (0% compression)
+                new DataView(lfh.buffer).setUint32(22, size, true); // uncompressed size
+                new DataView(lfh.buffer).setUint16(26, filenameBytes.length, true);
+                lfh.set(filenameBytes, 30);
+
+                zipParts.push(lfh);
+                zipParts.push(file.data);
+
+                // Central Directory Record
+                const cdr = new Uint8Array(46 + filenameBytes.length);
+                cdr.set([0x50, 0x4B, 0x01, 0x02, 20, 0, 10, 0, 0, 0, 0, 0, 0, 0], 0);
+                new DataView(cdr.buffer).setUint32(16, fileCrc, true);
+                new DataView(cdr.buffer).setUint32(20, size, true);
+                new DataView(cdr.buffer).setUint32(24, size, true);
+                new DataView(cdr.buffer).setUint16(28, filenameBytes.length, true);
+                new DataView(cdr.buffer).setUint32(42, offset, true); // Local header offset
+                cdr.set(filenameBytes, 46);
+
+                centralDirectory.push(cdr);
+                offset += lfh.length + size;
+            });
+
+            const cdrLength = centralDirectory.reduce((acc, curr) => acc + curr.length, 0);
+            
+            // End of Central Directory
+            const eocd = new Uint8Array(22);
+            eocd.set([0x50, 0x4B, 0x05, 0x06, 0, 0, 0, 0], 0);
+            new DataView(eocd.buffer).setUint16(8, files.length, true); // Число записей на диске
+            new DataView(eocd.buffer).setUint16(10, files.length, true); // Всего записей
+            new DataView(eocd.buffer).setUint32(12, cdrLength, true); // Размер центрального каталога
+            new DataView(eocd.buffer).setUint32(16, offset, true); // Смещение относительно начала
+
+            // Объединяем все части в один Blob
+            const finalBlob = new Blob([...zipParts, ...centralDirectory, eocd], { type: 'application/zip' });
+            
+            // Создаем триггер скачивания файла в браузере
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(finalBlob);
+            link.download = `${state.modName || 'seeng_addon'}.zip`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Запуск приложения
+        init();
+    </script>
+</body>
+</html>
