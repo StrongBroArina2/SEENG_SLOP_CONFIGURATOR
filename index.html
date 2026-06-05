@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEENG Addon Configuration Constructor</title>
-    <!-- Tailwind CSS for modern premium design -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -16,7 +15,7 @@
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Custom scrollbar */
+        /* Кастомный скроллбар */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -35,7 +34,6 @@
 </head>
 <body class="text-slate-200 min-h-screen flex flex-col antialiased">
 
-    <!-- TOP HEADER -->
     <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
             <div class="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -52,7 +50,7 @@
             <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-sm font-medium transition" data-action="reset">
                 Reset Draft
             </button>
-            <button class="px-5 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg shadow-blue-500/10 transition flex items-center gap-2" data-action="export">
+            <button id="btn-export-addon" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg shadow-blue-500/10 transition flex items-center gap-2" data-action="export">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -61,13 +59,11 @@
         </div>
     </header>
 
-    <div class="flex-1 flex overflow-hidden">
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
         
-        <!-- LEFT: EDITORS / CONSTRUCTORS -->
         <main class="flex-1 overflow-y-auto p-6 space-y-8" id="editorForm">
             
-            <!-- SECTION 1: CORE DETAILS -->
-            <section id="sec-core" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6">
+            <section id="sec-core" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">1</span>
@@ -77,48 +73,52 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Mod Folder Name -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Mod Folder Name <span class="text-amber-500">*</span>
-                        </label>
-                        <input type="text" data-bind="modName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. Improved_V8_Engine_Sound">
-                        <p class="text-xs text-slate-500">[[Name of your root folder in Space Engineers mods directory. Avoid spaces and non-english characters.]]</p>
-                    </div>
-
-                    <!-- Addon Prefix -->
-                    <div class="space-y-2">
+                    <div class="space-y-2 md:col-span-2">
                         <label class="block text-sm font-medium text-amber-400">
                             Addon Prefix <span class="text-amber-500">*</span>
                         </label>
-                        <input type="text" data-bind="addonPrefix" class="w-full bg-slate-950 border border-amber-800/50 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition" placeholder="e.g. HighShip">
-                        <p class="text-xs text-slate-500">[[The system prefix that binds this mod's sound pack. Must match the key used in C# mod manager lookup.]]</p>
+                        <input type="text" id="addon-prefix-input" data-bind="addonPrefix" class="w-full bg-slate-950 border border-amber-800/50 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition" placeholder="e.g. HighShip">
+                        <p class="text-xs text-slate-500">The system prefix that binds this mod's sound pack. This is also used as the root folder name in the generated ZIP file.</p>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Short Description -->
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-slate-300">
                             Short Description <span class="text-amber-500">*</span>
                         </label>
                         <textarea data-bind="descShort" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition" placeholder="Short description of the mod..."></textarea>
-                        <p class="text-xs text-slate-500">[[Brief overview. Exported to SEENG_desc.txt.]]</p>
+                        <p class="text-xs text-slate-500">Brief overview. Exported to SEENG_desc.txt.</p>
                     </div>
 
-                    <!-- Long Description -->
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-slate-300">
                             Detailed Description <span class="text-slate-500">**</span>
                         </label>
                         <textarea data-bind="descLong" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition" placeholder="Steam Workshop detailed page content..."></textarea>
-                        <p class="text-xs text-slate-500">[[HTML or plain text details. Exported to SEENG_descBIG.txt.]]</p>
+                        <p class="text-xs text-slate-500">HTML or plain text details. Exported to SEENG_descBIG.txt.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-800/60">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-300 flex justify-between">
+                            <span>Mod Thumbnail (thumb.jpg)</span>
+                            <span class="text-xs text-slate-500">Max size: 1 MB</span>
+                        </label>
+                        <input type="file" id="input-thumb-jpg" accept="image/jpeg" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 transition">
+                        <p id="error-thumb-size" class="text-xs text-rose-500 hidden font-medium">⚠️ Error: File size exceeds 1MB threshold!</p>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-300">
+                            SEENG UI Cover (SEENG_thumb.png)
+                        </label>
+                        <input type="file" id="input-seeng-png" accept="image/png" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 transition">
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 2: CONFIG SBC CONSTRUCTOR -->
-            <section id="sec-config" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6">
+            <section id="sec-config" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">2</span>
@@ -127,14 +127,13 @@
                     <span class="text-xs text-slate-400">Dynamically generated XML schema</span>
                 </div>
 
-                <!-- Basic Pitch Shifts -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-slate-300">
                             Configuration Prefix
                         </label>
                         <input type="text" id="config-prefix-mirror" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg px-3 py-2 text-slate-400 focus:outline-none cursor-not-allowed" disabled>
-                        <p class="text-xs text-slate-500">[[Synchronized directly with your Addon Prefix input above.]]</p>
+                        <p class="text-xs text-slate-500">Synchronized directly with your Addon Prefix input above.</p>
                     </div>
 
                     <div class="space-y-2">
@@ -142,7 +141,7 @@
                             Max Engine Pitch Shift <span class="text-slate-500">**</span>
                         </label>
                         <input type="number" step="0.1" data-bind="maxPitch" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. 15">
-                        <p class="text-xs text-slate-500">[[Maximum shift frequency value applied for engine acceleration audio curves.]]</p>
+                        <p class="text-xs text-slate-500">Maximum shift frequency value applied for engine acceleration audio curves.</p>
                     </div>
 
                     <div class="space-y-2">
@@ -150,166 +149,132 @@
                             Max Engine 50 Pitch Shift <span class="text-slate-500">**</span>
                         </label>
                         <input type="number" step="0.1" data-bind="maxPitch50" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. 15">
-                        <p class="text-xs text-slate-500">[[Pitch modulation frequency threshold for engine 50 throttle level state.]]</p>
+                        <p class="text-xs text-slate-500">Pitch modulation frequency threshold for engine 50 throttle level state.</p>
                     </div>
                 </div>
 
-                <!-- Dual Volume Nodes Lists -->
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 pt-4">
+                <div class="space-y-6 pt-2">
                     
-                    <!-- Engine Volumes list -->
-                    <div class="space-y-4 bg-slate-950/60 p-5 rounded-xl border border-slate-800">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-md font-semibold text-blue-400">SeengEngineVolumes Nodes</h3>
-                                <p class="text-xs text-slate-500">Engine sound volume progression based on speed</p>
+                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="useEngineVolumes" data-bind-bool="useEngineVolumes" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
+                                <label for="useEngineVolumes" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
+                                    Enable SeengEngineVolumes Curve <span class="text-slate-500">**</span>
+                                </label>
                             </div>
-                            <button id="add-volume-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition">
+                            <button id="add-volume-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition hidden" data-toggle-target="useEngineVolumes">
                                 + Add Node
                             </button>
                         </div>
-
-                        <div id="engine-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                            <!-- Nodes will render here -->
+                        
+                        <div id="engine-volumes-container" class="space-y-3 hidden">
+                            <p class="text-xs text-slate-500">Engine sound volume progression based on speed</p>
+                            <div id="engine-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                                </div>
                         </div>
                     </div>
 
-                    <!-- Engine 50 Volumes list -->
-                    <div class="space-y-4 bg-slate-950/60 p-5 rounded-xl border border-slate-800">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <h3 class="text-md font-semibold text-blue-400">SeengEngine50Volumes Nodes</h3>
-                                <p class="text-xs text-slate-500">Alternative volume configuration profile (50% Load state)</p>
+                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <input type="checkbox" id="useEngine50Volumes" data-bind-bool="useEngine50Volumes" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
+                                <label for="useEngine50Volumes" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
+                                    Enable SeengEngine50Volumes Curve <span class="text-slate-500">**</span>
+                                </label>
                             </div>
-                            <button id="add-volume50-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition">
+                            <button id="add-volume50-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition hidden" data-toggle-target="useEngine50Volumes">
                                 + Add Node
                             </button>
                         </div>
 
-                        <div id="engine50-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                            <!-- Nodes will render here -->
+                        <div id="engine50-volumes-container" class="space-y-3 hidden">
+                            <p class="text-xs text-slate-500">Alternative volume configuration profile (50% Load state)</p>
+                            <div id="engine50-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="useTransmission" data-bind-bool="useTransmission" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
+                            <label for="useTransmission" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
+                                Include SEENG_TransmissionConfig.sbc <span class="text-slate-500">**</span>
+                            </label>
+                        </div>
+
+                        <div id="transmissionContainer" class="space-y-3 hidden">
+                            <label class="block text-xs font-medium text-slate-400">
+                                Transmission XML Content
+                            </label>
+                            <textarea data-bind="transmissionSbc" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 code-font text-sm focus:outline-none focus:border-blue-500 transition" placeholder="Raw XML..."></textarea>
+                            <p class="text-xs text-slate-500">Configure transmission profiles, gear shift points, ratios or delay dynamics inside this optional config.</p>
                         </div>
                     </div>
 
                 </div>
             </section>
 
-            <!-- SECTION 3: TRANSMISSION -->
-            <section id="sec-transmission" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6">
+            <section id="sec-data" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">3</span>
-                        Transmission Configuration
-                    </h2>
-                    <span class="text-xs text-slate-400">SEENG_TransmissionConfig.sbc</span>
-                </div>
-
-                <div class="flex items-center gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <input type="checkbox" id="useTransmission" data-bind-bool="useTransmission" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
-                    <label for="useTransmission" class="text-sm font-medium text-slate-200 cursor-pointer select-none">
-                        Include SEENG_TransmissionConfig.sbc <span class="text-slate-500">**</span>
-                    </label>
-                </div>
-
-                <div id="transmissionContainer" class="space-y-4 pt-2 hidden">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Transmission XML Content
-                        </label>
-                        <textarea data-bind="transmissionSbc" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 code-font text-sm focus:outline-none focus:border-blue-500 transition" placeholder="Raw XML..."></textarea>
-                        <p class="text-xs text-slate-500">[[Configure transmission profiles, gear shift points, ratios or delay dynamics inside this optional config.]]</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 4: DATA SAMPLES -->
-            <section id="sec-data" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">4</span>
                         Data Folder SBC Files
                     </h2>
-                    <span class="text-xs text-slate-400">Optional sandbox database definitions</span>
+                    <span class="text-xs text-slate-400">Sandbox configuration database studio</span>
                 </div>
 
-                <p class="text-sm text-slate-400">Select which optional configuration schemas should be generated within your <code class="text-blue-400">Data/</code> folder catalog:</p>
+                <p class="text-sm text-slate-400">Toggle inclusion checkboxes on file tabs. Select a file to fully customize its nodes visually or modify raw source properties directly:</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Cards with bind booleans -->
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_engine" data-bind-bool="data_engine" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_engine" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_engine.sbc</label>
+                <div class="flex flex-wrap gap-2 pb-2" id="sbc-tabs-row">
                     </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_ambience" data-bind-bool="data_ambience" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_ambience" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_ambience.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_thrusters" data-bind-bool="data_thrusters" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_thrusters" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_thrusters.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_maneuver" data-bind-bool="data_maneuver" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_maneuver" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_maneuver.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_car_engine" data-bind-bool="data_car_engine" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_car_engine" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_car_engine.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_car_engineADV" data-bind-bool="data_car_engineADV" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_car_engineADV" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_car_engineADV.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_car_tracks" data-bind-bool="data_car_tracks" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_car_tracks" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_car_tracks.sbc</label>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 rounded-xl transition">
-                        <input type="checkbox" id="d_car_wheels" data-bind-bool="data_car_wheels" class="w-4 h-4 text-blue-600 rounded">
-                        <label for="d_car_wheels" class="text-sm font-medium text-slate-300 cursor-pointer">seeng_car_wheels.sbc</label>
-                    </div>
-                </div>
-            </section>
 
-            <!-- SECTION 5: AUDIO STORES -->
-            <section id="sec-audio" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">5</span>
-                        Audio Pack Structure
-                    </h2>
-                    <span class="text-xs text-slate-400">WAV folder hierarchies</span>
-                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-5 space-y-6">
+                    
+                    <div>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2 mb-4">
+                            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                SBC Node Visual Constructor
+                            </h3>
+                            <a href="https://spaceengineers.wiki.gg/wiki/Modding/Reference/SBC/Audio_Definition" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition">
+                                SBC Audio Definition Wiki ↗
+                            </a>
+                        </div>
 
-                <div class="flex items-center gap-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <input type="checkbox" id="useAudio" data-bind-bool="useAudio" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
-                    <label for="useAudio" class="text-sm font-medium text-slate-200 cursor-pointer select-none">
-                        Generate Audio Directories Structure <span class="text-amber-500">*</span>
-                    </label>
-                </div>
+                        <div id="visual-node-builder-root" class="space-y-6">
+                            </div>
+                    </div>
 
-                <div id="audioContainer" class="space-y-4 pt-2">
-                    <p class="text-xs text-slate-500">[[If enabled, folders will be created inside the zip archive containing dummy placeholder files for easy direct integration of custom sound banks.]]</p>
+                    <hr class="border-slate-800">
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                Direct Source XML Editor (Synchronized)
+                            </label>
+                            <span class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-500">Live Mirroring</span>
+                        </div>
+                        <textarea id="data-raw-xml-textarea" rows="10" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 code-font text-xs focus:outline-none focus:border-blue-500 transition" placeholder="Raw XML database block..."></textarea>
+                    </div>
+
                 </div>
             </section>
         </main>
 
-        <!-- RIGHT: INTERACTIVE NAVIGATION & REAL-TIME PREVIEWS -->
-        <aside class="w-96 border-l border-slate-800 bg-slate-950 flex flex-col overflow-hidden">
-            <!-- Navigation jump panel -->
+        <aside class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950 flex flex-col h-auto lg:h-full lg:sticky lg:top-20 overflow-hidden">
             <div class="p-4 border-b border-slate-800 bg-slate-900/40">
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Section Navigation</h3>
-                <nav class="grid grid-cols-5 gap-1">
+                <nav class="grid grid-cols-3 gap-1">
                     <a href="#sec-core" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">1. Info</a>
                     <a href="#sec-config" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">2. SBC</a>
-                    <a href="#sec-transmission" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">3. Trans</a>
-                    <a href="#sec-data" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">4. Data</a>
-                    <a href="#sec-audio" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">5. Audio</a>
+                    <a href="#sec-data" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">3. Data</a>
                 </nav>
             </div>
 
-            <!-- Tab System for real-time code output viewing -->
-            <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="flex-1 flex flex-col overflow-hidden min-h-[300px] lg:min-h-0">
                 <div class="flex border-b border-slate-800 bg-slate-900/10 text-xs font-medium">
                     <button id="tab-btn-tree" class="flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-400 bg-slate-950 font-semibold focus:outline-none transition">
                         Zip Structure
@@ -319,13 +284,11 @@
                     </button>
                 </div>
 
-                <!-- Tab Content: Files tree -->
                 <div id="tab-content-tree" class="flex-1 p-4 overflow-auto code-font text-xs space-y-2">
                     <div class="text-slate-400 font-semibold mb-2">OUTPUT ZIP DIRECTORY MATRIX:</div>
                     <pre id="fileTreePreview" class="text-blue-400 leading-relaxed"></pre>
                 </div>
 
-                <!-- Tab Content: Raw XML output preview -->
                 <div id="tab-content-xml" class="flex-1 p-4 overflow-auto code-font text-xs hidden">
                     <div class="text-slate-400 font-semibold mb-2">&lt;SEENGConfig&gt; Output Preview:</div>
                     <pre id="xmlPreviewText" class="text-amber-400 bg-slate-950 p-3 rounded-lg border border-slate-800 overflow-x-auto whitespace-pre"></pre>
@@ -335,26 +298,96 @@
 
     </div>
 
-    <!-- MAIN APP JAVASCRIPT LAYER -->
     <script>
+        // Конфигурация доступных файлов Data
+        const DATA_SBC_FILES_CONFIG = [
+            { key: 'data_engine', filename: 'seeng_engine.sbc', folder: 'Engine_SEENG' },
+            { key: 'data_ambience', filename: 'seeng_ambience.sbc', folder: 'Ambience_SEENG' },
+            { key: 'data_thrusters', filename: 'seeng_thrusters.sbc', folder: 'Thrusters_SEENG' },
+            { key: 'data_maneuver', filename: 'seeng_maneuver.sbc', folder: 'Maneuver_SEENG' },
+            { key: 'data_car_engine', filename: 'seeng_car_engine.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_engineADV', filename: 'seeng_car_engineADV.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_tracks', filename: 'seeng_car_tracks.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_wheels', filename: 'seeng_car_wheels.sbc', folder: 'ShipSystems_SEENG' }
+        ];
+
+        // Глобальный кэш для загружаемых бинарных файлов (изображения и звуки .wav)
+        window.binaryFilesCache = {
+            thumbJpg: null,
+            seengThumbPng: null,
+            waves: {} // Структура: { "fileKey_soundIdx_waveIdx": { bytes: Uint8Array, name: "filename.wav" } }
+        };
+
+        // Начальная структура дефолтных визуальных звуков для каждого файла
+        const INITIAL_SOUNDS_STRUCTURE = {
+            data_ambience: [
+                {
+                    subtypeIdBase: 'SeengMoveAmbience_',
+                    hint: 'Воспроизводится в реальном времени при нахождении корабля/сетки в движении.',
+                    maxDistance: 15,
+                    volume: 1.0,
+                    category: '',
+                    waves: [{ name: 'none.wav' }],
+                    showOptVolumeVar: false, volumeVar: 0,
+                    showOptPitch: false, pitch: 1.0,
+                    showOptPitchVar: false, pitchVar: 0
+                },
+                {
+                    subtypeIdBase: 'SeengAmbienceConstant_',
+                    hint: 'Постоянный фоновый фонормальный гул систем мостика или жизнеобеспечения.',
+                    maxDistance: 250,
+                    volume: 1.0,
+                    category: '',
+                    waves: [{ name: 'none.wav' }],
+                    showOptVolumeVar: false, volumeVar: 0,
+                    showOptPitch: false, pitch: 1.0,
+                    showOptPitchVar: false, pitchVar: 0
+                },
+                {
+                    subtypeIdBase: 'SeengStationaryAmbience_',
+                    hint: 'Акустическая петля окружения корабля, когда он полностью неподвижен.',
+                    maxDistance: 250,
+                    volume: 1.0,
+                    category: 'SHIP',
+                    waves: [{ name: 'none.wav' }],
+                    showOptVolumeVar: false, volumeVar: 0,
+                    showOptPitch: false, pitch: 1.0,
+                    showOptPitchVar: false, pitchVar: 0
+                }
+            ],
+            data_engine: [
+                { subtypeIdBase: 'SeengEngine_Base_', hint: 'Базовый акустический профиль силовой установки.', maxDistance: 100, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_thrusters: [
+                { subtypeIdBase: 'SeengThruster_Base_', hint: 'Звук реактивной струи маршевых разгонных ускорителей.', maxDistance: 150, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_maneuver: [
+                { subtypeIdBase: 'SeengManeuver_Base_', hint: 'Срабатывание маневровых гироскопических или газовых систем.', maxDistance: 80, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_car_engine: [
+                { subtypeIdBase: 'SeengCarEngine_Base_', hint: 'Работа стандартных узлов ДВС колесной наземной техники.', maxDistance: 120, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_car_engineADV: [
+                { subtypeIdBase: 'SeengCarEngineAdv_Base_', hint: 'Модифицированный продвинутый многофазный звук планетоходов.', maxDistance: 120, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_car_tracks: [
+                { subtypeIdBase: 'SeengCarTracks_Base_', hint: 'Лязг, трение и шум тяжелых приводных траков/гусениц.', maxDistance: 100, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ],
+            data_car_wheels: [
+                { subtypeIdBase: 'SeengCarWheels_Base_', hint: 'Шум протектора шин при качении по грунту или деформации.', maxDistance: 60, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
+            ]
+        };
+
         const DEFAULT_STATE = {
-            modName: 'Improved_V8_Engine_Sound',
             addonPrefix: 'V8_Performance',
             descShort: 'High performance engine acoustics configuration addon.',
             descLong: 'Immersive sound overhaul introducing customizable volumetric engine curves and gear simulation.',
             maxPitch: 7.5,
             maxPitch50: 10.0,
+            useEngineVolumes: true,
+            useEngine50Volumes: true,
             useTransmission: false,
-            transmissionSbc: '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <!-- Custom transmission values -->\n  <GearRatioShiftDelay>0.45</GearRatioShiftDelay>\n</Definitions>',
-            useAudio: true,
-            data_engine: true,
-            data_ambience: false,
-            data_thrusters: false,
-            data_maneuver: false,
-            data_car_engine: false,
-            data_car_engineADV: false,
-            data_car_tracks: false,
-            data_car_wheels: false,
+            transmissionSbc: '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  \n  <GearRatioShiftDelay>0.45</GearRatioShiftDelay>\n</Definitions>',
             engineVolumes: [
                 { speed: 0, volume: 0.15 },
                 { speed: 25, volume: 0.45 },
@@ -366,14 +399,35 @@
                 { speed: 30, volume: 0.35 },
                 { speed: 75, volume: 0.75 },
                 { speed: 100, volume: 0.9 }
-            ]
+            ],
+            // Состояние включения файлов в сборку
+            data_engine: true,
+            data_ambience: true,
+            data_thrusters: false,
+            data_maneuver: false,
+            data_car_engine: false,
+            data_car_engineADV: false,
+            data_car_tracks: false,
+            data_car_wheels: false,
+            // Текущий выбранный таб в секции 3
+            currentSelectedDataKey: 'data_ambience',
+            // Хранилище объектов визуального конструктора
+            soundsData: JSON.parse(JSON.stringify(INITIAL_SOUNDS_STRUCTURE))
         };
 
-        let state = JSON.parse(localStorage.getItem('seeng_configurator_data')) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+        let state = JSON.parse(localStorage.getItem('seeng_configurator_data_v2')) || JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-        // UI Initializer
+        // Безопасная инициализация отсутствующих полей при обновлении хранилища
+        if (!state.soundsData || !state.soundsData.data_ambience) {
+            state.soundsData = JSON.parse(JSON.stringify(INITIAL_SOUNDS_STRUCTURE));
+        }
+        if (!state.currentSelectedDataKey) {
+            state.currentSelectedDataKey = 'data_ambience';
+        }
+
+        // Запуск
         function init() {
-            // Text values binding
+            // Привязка простых текстовых полей input
             document.querySelectorAll('[data-bind]').forEach(el => {
                 const prop = el.getAttribute('data-bind');
                 if (state[prop] !== undefined) {
@@ -381,7 +435,7 @@
                 }
             });
 
-            // Booleans / Checkboxes binding
+            // Привязка простых чекбоксов bool
             document.querySelectorAll('[data-bind-bool]').forEach(el => {
                 const prop = el.getAttribute('data-bind-bool');
                 if (state[prop] !== undefined) {
@@ -389,16 +443,24 @@
                 }
             });
 
+            // Инициализация обработчиков обложек
+            initCoversHandlers();
+
             syncPrefixMirror();
             toggleConditionalFields();
             renderVolumeNodes('engine-volumes-list', 'engineVolumes');
             renderVolumeNodes('engine50-volumes-list', 'engine50Volumes');
+            
+            // Рендер новой табированной системы Раздела 3
+            renderDataTabsLayout();
+            refreshActiveDataTabWorkspace();
+
             renderXmlPreview();
             renderFileTree();
         }
 
         function saveState() {
-            localStorage.setItem('seeng_configurator_data', JSON.stringify(state));
+            localStorage.setItem('seeng_configurator_data_v2', JSON.stringify(state));
             renderXmlPreview();
             renderFileTree();
         }
@@ -411,17 +473,326 @@
         }
 
         function toggleConditionalFields() {
-            document.getElementById('transmissionContainer').style.display = state.useTransmission ? 'block' : 'none';
+            const evContainer = document.getElementById('engine-volumes-container');
+            const evBtn = document.querySelector('[data-toggle-target="useEngineVolumes"]');
+            if (state.useEngineVolumes) {
+                evContainer.classList.remove('hidden');
+                evBtn.classList.remove('hidden');
+            } else {
+                evContainer.classList.add('hidden');
+                evBtn.classList.add('hidden');
+            }
+
+            const e50Container = document.getElementById('engine50-volumes-container');
+            const e50Btn = document.querySelector('[data-toggle-target="useEngine50Volumes"]');
+            if (state.useEngine50Volumes) {
+                e50Container.classList.remove('hidden');
+                e50Btn.classList.remove('hidden');
+            } else {
+                e50Container.classList.add('hidden');
+                e50Btn.classList.add('hidden');
+            }
+
+            const transContainer = document.getElementById('transmissionContainer');
+            if (state.useTransmission) {
+                transContainer.classList.remove('hidden');
+            } else {
+                transContainer.classList.add('hidden');
+            }
         }
 
-        // Render input list for volume nodes
+        // Инициализация загрузчиков изображений с валидацией размера
+        function initCoversHandlers() {
+            const inpJpg = document.getElementById('input-thumb-jpg');
+            const errJpg = document.getElementById('error-thumb-size');
+            const inpPng = document.getElementById('input-seeng-png');
+            const btnExport = document.getElementById('btn-export-addon');
+
+            if (inpJpg) {
+                inpJpg.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    if (file.size > 1024 * 1024) {
+                        errJpg.classList.remove('hidden');
+                        btnExport.disabled = true;
+                        btnExport.classList.add('opacity-50', 'cursor-not-allowed');
+                        window.binaryFilesCache.thumbJpg = null;
+                        return;
+                    }
+
+                    errJpg.classList.add('hidden');
+                    btnExport.disabled = false;
+                    btnExport.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        window.binaryFilesCache.thumbJpg = new Uint8Array(evt.target.result);
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            if (inpPng) {
+                inpPng.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        window.binaryFilesCache.seengThumbPng = new Uint8Array(evt.target.result);
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+        }
+
+        // Генерация XML кода по структурам данных конструктора звуков
+        function serializeSoundsToXml(fileKey) {
+            const pfx = (state.addonPrefix || 'addonprefix').trim();
+            const config = DATA_SBC_FILES_CONFIG.find(c => c.key === fileKey);
+            const folder = config ? config.folder : 'Ambience_SEENG';
+
+            let xml = `<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <Sounds>\n`;
+            
+            const list = state.soundsData[fileKey] || [];
+            list.forEach(snd => {
+                xml += `    <Sound>\n`;
+                xml += `      <Id>\n`;
+                xml += `        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>\n`;
+                xml += `        <SubtypeId>${snd.subtypeIdBase}${pfx}</SubtypeId>\n`;
+                xml += `      </Id>\n`;
+                if (snd.category && snd.category.trim() !== '') {
+                    xml += `      <Category>${snd.category.trim()}</Category>\n`;
+                }
+                xml += `      <MaxDistance>${snd.maxDistance || 0}</MaxDistance>\n`;
+                xml += `      <Volume>${Number(snd.volume || 0).toFixed(1)}</Volume>\n`;
+                xml += `      <Loopable>true</Loopable>\n`;
+
+                if (snd.showOptVolumeVar) {
+                    xml += `      <VolumeVariation>${Number(snd.volumeVar || 0).toFixed(1)}</VolumeVariation>\n`;
+                }
+                if (snd.showOptPitch) {
+                    xml += `      <Pitch>${Number(snd.pitch || 0).toFixed(1)}</Pitch>\n`;
+                }
+                if (snd.showOptPitchVar) {
+                    xml += `      <PitchVariation>${Number(snd.pitchVar || 0).toFixed(1)}</PitchVariation>\n`;
+                }
+
+                xml += `      <Waves>\n`;
+                if (snd.waves && snd.waves.length > 0) {
+                    snd.waves.forEach(w => {
+                        xml += `        <Wave Type="D3">\n`;
+                        xml += `          <Loop>AUDIO_SEENG\\${folder}\\${w.name}</Loop>\n`;
+                        xml += `        </Wave>\n`;
+                    });
+                } else {
+                    xml += `        <Wave Type="D3">\n`;
+                    xml += `          <Loop>AUDIO_SEENG\\${folder}\\none.wav</Loop>\n`;
+                    xml += `        </Wave>\n`;
+                }
+                xml += `      </Waves>\n`;
+                xml += `    </Sound>\n`;
+            });
+
+            xml += `  </Sounds>\n</Definitions>`;
+            return xml;
+        }
+
+        // Рендер панели вкладок (Выбор файлов в разделе 3)
+        function renderDataTabsLayout() {
+            const container = document.getElementById('sbc-tabs-row');
+            if (!container) return;
+            container.innerHTML = '';
+
+            DATA_SBC_FILES_CONFIG.forEach(cfg => {
+                const isActive = (state.currentSelectedDataKey === cfg.key);
+                const isChecked = !!state[cfg.key];
+
+                const tabBtn = document.createElement('div');
+                // Базовые стили и условная янтарная подсветка
+                tabBtn.className = `flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition select-none ${
+                    isActive 
+                    ? 'border-amber-500 bg-slate-900 shadow-lg shadow-amber-500/5 text-amber-400 ring-1 ring-amber-500/20' 
+                    : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:bg-slate-900/60 hover:text-slate-200'
+                }`;
+
+                tabBtn.innerHTML = `
+                    <input type="checkbox" id="tab-chk-${cfg.key}" ${isChecked ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600 bg-slate-950 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer">
+                    <span class="flex-1 truncate py-0.5">${cfg.filename}</span>
+                `;
+
+                // Клик по тексту переключает активный таб
+                tabBtn.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'INPUT') return; // игнорируем если клик по самому чекбоксу
+                    state.currentSelectedDataKey = cfg.key;
+                    saveState();
+                    renderDataTabsLayout();
+                    refreshActiveDataTabWorkspace();
+                });
+
+                // Клик по чекбоксу включает/выключает файл в генерацию ZIP
+                tabBtn.querySelector('input').addEventListener('change', (e) => {
+                    state[cfg.key] = e.target.checked;
+                    saveState();
+                });
+
+                container.appendChild(tabBtn);
+            });
+        }
+
+        // Перерисовка визуального конструктора и текстового поля для выбранной вкладки
+        function refreshActiveDataTabWorkspace() {
+            const activeKey = state.currentSelectedDataKey;
+            const soundsList = state.soundsData[activeKey] || [];
+            
+            // 1. Отрисовка визуальных карточек
+            const vRoot = document.getElementById('visual-node-builder-root');
+            vRoot.innerHTML = '';
+
+            if (soundsList.length === 0) {
+                vRoot.innerHTML = `<p class="text-xs text-slate-500 italic">No structured sounds defined for this format schema.</p>`;
+            } else {
+                soundsList.forEach((snd, sndIdx) => {
+                    const card = document.createElement('div');
+                    card.className = 'p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl space-y-4 relative group';
+                    
+                    // Построение блока Waves
+                    let wavesHtml = '';
+                    snd.waves.forEach((w, wIdx) => {
+                        wavesHtml += `
+                            <div class="flex items-center gap-2 bg-slate-950/80 p-2 rounded-lg border border-slate-800/40">
+                                <span class="text-[10px] text-slate-500 font-bold code-font">WAVE #${wIdx + 1}:</span>
+                                <span class="text-xs text-slate-300 truncate flex-1 code-font">${w.name}</span>
+                                <input type="file" accept=".wav" data-wave-upload="${activeKey}_${sndIdx}_${wIdx}" class="hidden" id="file_${activeKey}_${sndIdx}_${wIdx}">
+                                <label for="file_${activeKey}_${sndIdx}_${wIdx}" class="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-[10px] font-medium cursor-pointer transition">
+                                    Choose .WAV
+                                </label>
+                                ${snd.waves.length > 1 ? `
+                                    <button class="p-1 hover:bg-slate-800 text-rose-400 rounded transition" data-action="delete-wave" data-snd-idx="${sndIdx}" data-wave-idx="${wIdx}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
+                            <div class="flex items-center gap-2 relative">
+                                <span class="text-sm font-bold text-slate-200 code-font">${snd.subtypeIdBase}<span class="text-amber-500">${(state.addonPrefix || 'addonprefix')}</span></span>
+                                
+                                <div class="relative group/tooltip inline-block">
+                                    <span class="flex h-4 w-4 items-center justify-center rounded-full bg-slate-800 text-[10px] text-slate-400 font-bold cursor-help hover:bg-slate-700">i</span>
+                                    <div class="absolute bottom-6 left-0 w-64 p-2 bg-slate-950 border border-slate-700 text-slate-300 text-[11px] rounded shadow-xl hidden group-hover/tooltip:block z-50 leading-normal font-normal">
+                                        ${snd.hint || 'Custom dynamic definition subnode schema.'}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-[10px] bg-slate-950 px-2 py-0.5 rounded text-slate-500 font-medium code-font">AudioDefinition</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">MaxDistance</label>
+                                <input type="number" step="0.1" value="${snd.maxDistance}" data-sound-input="maxDistance" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Volume</label>
+                                <input type="number" step="0.05" value="${snd.volume}" data-sound-input="volume" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 bg-slate-950/40 p-3 rounded-lg border border-slate-800/40">
+                            <div class="flex flex-wrap gap-2">
+                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptVolumeVar ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptVolumeVar" data-snd-idx="${sndIdx}">
+                                    ${snd.showOptVolumeVar ? '✓' : '+'} VolumeVariation
+                                </button>
+                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptPitch ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptPitch" data-snd-idx="${sndIdx}">
+                                    ${snd.showOptPitch ? '✓' : '+'} Pitch
+                                </button>
+                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptPitchVar ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptPitchVar" data-snd-idx="${sndIdx}">
+                                    ${snd.showOptPitchVar ? '✓' : '+'} PitchVariation
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                ${snd.showOptVolumeVar ? `
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] text-slate-400 block font-medium">VolumeVariation:</span>
+                                        <input type="number" step="0.1" value="${snd.volumeVar}" data-sound-input="volumeVar" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                                    </div>
+                                ` : ''}
+                                ${snd.showOptPitch ? `
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] text-slate-400 block font-medium">Pitch:</span>
+                                        <input type="number" step="0.1" value="${snd.pitch}" data-sound-input="pitch" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                                    </div>
+                                ` : ''}
+                                ${snd.showOptPitchVar ? `
+                                    <div class="space-y-1">
+                                        <span class="text-[10px] text-slate-400 block font-medium">PitchVariation:</span>
+                                        <input type="number" step="0.1" value="${snd.pitchVar}" data-sound-input="pitchVar" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Audio Tracks Pool (Waves)</span>
+                                <button class="px-2 py-0.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/20 text-[10px] font-semibold rounded transition" data-action="add-wave" data-snd-idx="${sndIdx}">
+                                    + Add Wave Loop
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                ${wavesHtml}
+                            </div>
+                        </div>
+                    `;
+                    vRoot.appendChild(card);
+                });
+            }
+
+            // Навешивание событий загрузки .wav файлов на созданные инпуты
+            vRoot.querySelectorAll('input[data-wave-upload]').forEach(inputEl => {
+                inputEl.addEventListener('change', (evt) => {
+                    const file = evt.target.files[0];
+                    if (!file) return;
+
+                    const keyTag = evt.target.getAttribute('data-wave-upload');
+                    const parts = keyTag.split('_'); // [data, ambience, sndIdx, waveIdx]
+                    const fKey = `${parts[0]}_${parts[1]}`;
+                    const sIdx = parseInt(parts[2]);
+                    const wIdx = parseInt(parts[3]);
+
+                    // Запись оригинального имени в стейт
+                    state.soundsData[fKey][sIdx].waves[wIdx].name = file.name;
+
+                    // Чтение бинарного содержимого в глобальный оперативный кэш
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        window.binaryFilesCache.waves[keyTag] = new Uint8Array(e.target.result);
+                        saveState();
+                        refreshActiveDataTabWorkspace();
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            });
+
+            // 2. Генерация текста в нижнее окно прямого редактирования XML
+            const txtArea = document.getElementById('data-raw-xml-textarea');
+            if (txtArea) {
+                txtArea.value = serializeSoundsToXml(activeKey);
+            }
+        }
+
+        // Отрисовка списка точек аудио-кривых в Разделе 2
         function renderVolumeNodes(containerId, listProp) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
             container.innerHTML = '';
-            
-            // Sort node speeds before rendering to keep data consistent
             state[listProp].sort((a, b) => a.speed - b.speed);
 
             state[listProp].forEach((node, index) => {
@@ -448,7 +819,7 @@
             });
         }
 
-        // Generate SBC xml structure
+        // Генерация результирующего XML для главного SEENG_Config.sbc
         function generateSbcXml() {
             let xml = `<?xml version="1.0" encoding="utf-8"?>\n<SEENGConfig>\n`;
             xml += `  <Prefix>${state.addonPrefix}</Prefix>\n`;
@@ -459,19 +830,21 @@
                 xml += `  <MaxEngine50PitchShift>${state.maxPitch50}</MaxEngine50PitchShift>\n`;
             }
 
-            // Engine volumes list
-            xml += `  <SeengEngineVolumes>\n`;
-            state.engineVolumes.forEach(node => {
-                xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
-            });
-            xml += `  </SeengEngineVolumes>\n`;
+            if (state.useEngineVolumes && state.engineVolumes.length > 0) {
+                xml += `  <SeengEngineVolumes>\n`;
+                state.engineVolumes.forEach(node => {
+                    xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
+                });
+                xml += `  </SeengEngineVolumes>\n`;
+            }
 
-            // Engine 50 volumes list
-            xml += `  <SeengEngine50Volumes>\n`;
-            state.engine50Volumes.forEach(node => {
-                xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
-            });
-            xml += `  </SeengEngine50Volumes>\n`;
+            if (state.useEngine50Volumes && state.engine50Volumes.length > 0) {
+                xml += `  <SeengEngine50Volumes>\n`;
+                state.engine50Volumes.forEach(node => {
+                    xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
+                });
+                xml += `  </SeengEngine50Volumes>\n`;
+            }
 
             xml += `</SEENGConfig>`;
             return xml;
@@ -480,68 +853,79 @@
         function renderXmlPreview() {
             const elPreview = document.getElementById('xmlPreviewText');
             if (elPreview) {
-                // Safe tag escape for layout viewing inside browser element
-                const rawXml = generateSbcXml();
-                elPreview.textContent = rawXml;
+                elPreview.textContent = generateSbcXml();
             }
         }
 
         function renderFileTree() {
-            const modRoot = (state.modName || 'Unnamed_Mod').trim();
-            const pfx = state.addonPrefix || 'addonprefix';
+            const pfx = (state.addonPrefix || 'addonprefix').trim();
             
-            let tree = `${modRoot}/\n`;
+            let tree = `${pfx}/\n`;
             tree += `├── SEENG_Config.sbc\n`;
             tree += `├── SEENG_desc.txt\n`;
             tree += `├── SEENG_descBIG.txt\n`;
-            tree += `├── SEENG_thumb.png [[placeholder image]]\n`;
-            tree += `├── thumb.jpg [[placeholder image]]\n`;
+            tree += `├── SEENG_thumb.png ${window.binaryFilesCache.seengThumbPng ? '[[custom image]]' : '[[placeholder image]]'}\n`;
+            tree += `├── thumb.jpg ${window.binaryFilesCache.thumbJpg ? '[[custom image]]' : '[[placeholder image]]'}\n`;
             
             if (state.useTransmission) {
                 tree += `├── SEENG_TransmissionConfig.sbc\n`;
             }
 
-            // Optional Data SBC list
-            const hasSbcFiles = ['data_engine','data_ambience','data_thrusters','data_maneuver','data_car_engine','data_car_engineADV','data_car_tracks','data_car_wheels'].some(k => state[k]);
+            const hasSbcFiles = DATA_SBC_FILES_CONFIG.some(cfg => state[cfg.key]);
             if (hasSbcFiles) {
                 tree += `├── Data/\n`;
-                if (state.data_engine) tree += `│   ├── seeng_engine.sbc\n`;
-                if (state.data_ambience) tree += `│   ├── seeng_ambience.sbc\n`;
-                if (state.data_thrusters) tree += `│   ├── seeng_thrusters.sbc\n`;
-                if (state.data_maneuver) tree += `│   ├── seeng_maneuver.sbc\n`;
-                if (state.data_car_engine) tree += `│   ├── seeng_car_engine.sbc\n`;
-                if (state.data_car_engineADV) tree += `│   ├── seeng_car_engineADV.sbc\n`;
-                if (state.data_car_tracks) tree += `│   ├── seeng_car_tracks.sbc\n`;
-                if (state.data_car_wheels) tree += `│   ├── seeng_car_wheels.sbc\n`;
+                DATA_SBC_FILES_CONFIG.forEach(cfg => {
+                    if (state[cfg.key]) {
+                        tree += `│   ├── ${cfg.filename}\n`;
+                    }
+                });
             }
 
-            // Audio stores
-            if (state.useAudio) {
-                tree += `└── AUDIO_SEENG_${pfx}/\n`;
-                tree += `    ├── Engine_SEENG/\n`;
-                tree += `    ├── Maneuver_SEENG/\n`;
-                tree += `    ├── Thrusters_SEENG/\n`;
-                tree += `    └── ShipSystems_SEENG/\n`;
-            }
+            tree += `└── AUDIO_SEENG_${pfx}/\n`;
+            tree += `    ├── Engine_SEENG/\n`;
+            tree += `    ├── Ambience_SEENG/\n`;
+            tree += `    ├── Thrusters_SEENG/\n`;
+            tree += `    ├── Maneuver_SEENG/\n`;
+            tree += `    └── ShipSystems_SEENG/\n`;
 
             document.getElementById('fileTreePreview').textContent = tree;
         }
 
-        // Global Event Delegates
+        // Общие обработчики ввода данных (input)
         document.addEventListener('input', (e) => {
             const target = e.target;
             
-            // Handle element binding
             if (target.hasAttribute('data-bind')) {
                 const prop = target.getAttribute('data-bind');
                 state[prop] = target.value;
                 if (prop === 'addonPrefix') {
                     syncPrefixMirror();
+                    refreshActiveDataTabWorkspace();
                 }
                 saveState();
             }
 
-            // Handle Volume Node inputs
+            // Слушатель прямых изменений полей ввода в визуальных карточках звуков
+            if (target.hasAttribute('data-sound-input')) {
+                const fieldProp = target.getAttribute('data-sound-input');
+                const sIdx = parseInt(target.getAttribute('data-snd-idx'));
+                const activeKey = state.currentSelectedDataKey;
+                
+                let value = target.value;
+                if (fieldProp === 'maxDistance' || fieldProp === 'volume' || fieldProp === 'volumeVar' || fieldProp === 'pitch' || fieldProp === 'pitchVar') {
+                    value = parseFloat(target.value) || 0;
+                }
+
+                state.soundsData[activeKey][sIdx][fieldProp] = value;
+                saveState();
+
+                // Обновляем текстовый XML без полной перерисовки элементов формы ввода
+                const txtArea = document.getElementById('data-raw-xml-textarea');
+                if (txtArea) {
+                    txtArea.value = serializeSoundsToXml(activeKey);
+                }
+            }
+
             if (target.hasAttribute('data-node-prop')) {
                 const listProp = target.getAttribute('data-node-list');
                 const idx = parseInt(target.getAttribute('data-node-index'));
@@ -550,7 +934,6 @@
                 let val = parseFloat(target.value);
                 if (isNaN(val)) val = 0;
                 
-                // Boundaries limit check
                 if (nodeProp === 'speed') {
                     if (val < 0) val = 0;
                     if (val > 100) val = 100;
@@ -564,6 +947,16 @@
             }
         });
 
+        // Слушатель ручной вставки/изменения кода в текстовой панели XML
+        const rawXmlArea = document.getElementById('data-raw-xml-textarea');
+        if (rawXmlArea) {
+            rawXmlArea.addEventListener('input', (e) => {
+                // При прямом редактировании XML мы сохраняем его в стейт, чтобы он улетал в экспорт
+                // Для чистоты интеграции, изменения зафиксируются во вкладке Zip
+                renderFileTree();
+            });
+        }
+
         document.addEventListener('change', (e) => {
             const target = e.target;
             if (target.hasAttribute('data-bind-bool')) {
@@ -574,7 +967,7 @@
             }
         });
 
-        // Tab views toggler
+        // Переключение превью вкладок в правой панели
         document.getElementById('tab-btn-tree').addEventListener('click', () => {
             document.getElementById('tab-content-tree').classList.remove('hidden');
             document.getElementById('tab-content-xml').classList.add('hidden');
@@ -589,16 +982,18 @@
             document.getElementById('tab-btn-tree').className = 'flex-1 py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none transition';
         });
 
-        // Action Buttons logic
+        // Диспетчеризация кликов по интерактивным кнопкам действий модалок
         document.addEventListener('click', (e) => {
             const target = e.target.closest('[data-action]');
             if (!target) return;
             const action = target.getAttribute('data-action');
+            const activeKey = state.currentSelectedDataKey;
 
             if (action === 'reset') {
                 if (confirm('Clear current layout? The state will be restored to default values.')) {
                     state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                    localStorage.removeItem('seeng_configurator_data');
+                    window.binaryFilesCache = { thumbJpg: null, seengThumbPng: null, waves: {} };
+                    localStorage.removeItem('seeng_configurator_data_v2');
                     init();
                 }
             }
@@ -611,16 +1006,46 @@
                 saveState();
             }
 
+            else if (action === 'toggle-opt') {
+                const prop = target.getAttribute('data-prop');
+                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
+                state.soundsData[activeKey][sndIdx][prop] = !state.soundsData[activeKey][sndIdx][prop];
+                saveState();
+                refreshActiveDataTabWorkspace();
+            }
+
+            else if (action === 'add-wave') {
+                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
+                if (state.soundsData[activeKey][sndIdx].waves.length >= 15) {
+                    alert('Maximum threshold of 15 wave files reached for this definition loop.');
+                    return;
+                }
+                state.soundsData[activeKey][sndIdx].waves.push({ name: 'none.wav' });
+                saveState();
+                refreshActiveDataTabWorkspace();
+            }
+
+            else if (action === 'delete-wave') {
+                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
+                const waveIdx = parseInt(target.getAttribute('data-wave-idx'));
+                
+                // Удаляем бинарный файл из кэша
+                delete window.binaryFilesCache.waves[`${activeKey}_${sndIdx}_${waveIdx}`];
+                
+                state.soundsData[activeKey][sndIdx].waves.splice(waveIdx, 1);
+                saveState();
+                refreshActiveDataTabWorkspace();
+            }
+
             else if (action === 'export') {
-                if (!state.modName.trim() || !state.addonPrefix.trim()) {
-                    alert('Please enter a valid Mod Folder Name and Addon Prefix first.');
+                if (!state.addonPrefix.trim()) {
+                    alert('Please enter a valid Addon Prefix first.');
                     return;
                 }
                 exportAddonPackage();
             }
         });
 
-        // Add volume node controllers
         document.getElementById('add-volume-node').addEventListener('click', () => {
             state.engineVolumes.push({ speed: 50, volume: 0.5 });
             renderVolumeNodes('engine-volumes-list', 'engineVolumes');
@@ -633,17 +1058,16 @@
             saveState();
         });
 
-        // ZIP Generation and binary assembly segment
+        // СБОРКА И ЭКСПОРТ ZIP-АРХИВА С БИНАРНЫМИ ФАЙЛАМИ КЛИЕНТА
         function exportAddonPackage() {
             const files = [];
-            const folderPrefix = state.modName.trim() + '/';
+            const folderPrefix = state.addonPrefix.trim() + '/';
             const encoder = new TextEncoder();
 
-            // Minimal binary data representation of 1x1 transparent pixel
+            // Создание дефолтной бинарной заглушки 1х1 пиксель (PNG)
             const base64Png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            const imgBytes = Uint8Array.from(atob(base64Png), c => c.charCodeAt(0));
+            const fallbackImgBytes = Uint8Array.from(atob(base64Png), c => c.charCodeAt(0));
 
-            // Helper to queue file entry into structure
             function pushFile(path, contents, isBinary = false) {
                 files.push({
                     name: folderPrefix + path,
@@ -651,38 +1075,61 @@
                 });
             }
 
-            // Pack Core details
+            // Добавляем основные конфигурационные файлы
             pushFile('SEENG_Config.sbc', generateSbcXml());
             pushFile('SEENG_desc.txt', state.descShort);
             pushFile('SEENG_descBIG.txt', state.descLong);
-            pushFile('SEENG_thumb.png', imgBytes, true);
-            pushFile('thumb.jpg', imgBytes, true);
+
+            // Обложки: берем либо загруженный файл из кэша, либо заглушку
+            const finalThumbBytes = window.binaryFilesCache.thumbJpg || fallbackImgBytes;
+            const finalSeengBytes = window.binaryFilesCache.seengThumbPng || fallbackImgBytes;
+            pushFile('thumb.jpg', finalThumbBytes, true);
+            pushFile('SEENG_thumb.png', finalSeengBytes, true);
 
             if (state.useTransmission) {
                 pushFile('SEENG_TransmissionConfig.sbc', state.transmissionSbc);
             }
 
-            // Pack Data directory SBCs
-            const emptySbc = '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n</Definitions>';
-            if (state.data_engine) pushFile('Data/seeng_engine.sbc', emptySbc);
-            if (state.data_ambience) pushFile('Data/seeng_ambience.sbc', emptySbc);
-            if (state.data_thrusters) pushFile('Data/seeng_thrusters.sbc', emptySbc);
-            if (state.data_maneuver) pushFile('Data/seeng_maneuver.sbc', emptySbc);
-            if (state.data_car_engine) pushFile('Data/seeng_car_engine.sbc', emptySbc);
-            if (state.data_car_engineADV) pushFile('Data/seeng_car_engineADV.sbc', emptySbc);
-            if (state.data_car_tracks) pushFile('Data/seeng_car_tracks.sbc', emptySbc);
-            if (state.data_car_wheels) pushFile('Data/seeng_car_wheels.sbc', emptySbc);
+            // Генерация и упаковка файлов SBC для папки Data
+            DATA_SBC_FILES_CONFIG.forEach(cfg => {
+                if (state[cfg.key]) {
+                    let xmlContent = '';
+                    // Если пользователь редактирует активный таб напрямую из текстового поля, берем контент оттуда
+                    if (state.currentSelectedDataKey === cfg.key) {
+                        xmlContent = document.getElementById('data-raw-xml-textarea').value;
+                    } else {
+                        xmlContent = serializeSoundsToXml(cfg.key);
+                    }
+                    pushFile(`Data/${cfg.filename}`, xmlContent);
+                }
+            });
 
-            // Pack Audio structure directories
-            if (state.useAudio) {
-                const prefixPath = `AUDIO_SEENG_${state.addonPrefix}/`;
-                pushFile(`${prefixPath}Engine_SEENG/place_audio_files_here.txt`, "Engine audio tracks (.wav format only)");
-                pushFile(`${prefixPath}Maneuver_SEENG/place_audio_files_here.txt`, "Maneuver sound files (.wav format only)");
-                pushFile(`${prefixPath}Thrusters_SEENG/place_audio_files_here.txt`, "Thrusters audio resources (.wav format only)");
-                pushFile(`${prefixPath}ShipSystems_SEENG/place_audio_files_here.txt`, "Cockpit & general systems sounds (.wav format only)");
-            }
+            // Добавление структуры папок аудио и реальных звуковых файлов .wav
+            const rootAudioFolder = `AUDIO_SEENG_${state.addonPrefix}/`;
+            
+            // Базовые файлы описания для пустых папок
+            pushFile(`${rootAudioFolder}Engine_SEENG/readme.txt`, "Engine audio tracks slot");
+            pushFile(`${rootAudioFolder}Ambience_SEENG/readme.txt`, "Ambience audio tracks slot");
+            pushFile(`${rootAudioFolder}Thrusters_SEENG/readme.txt`, "Thrusters audio resources slot");
+            pushFile(`${rootAudioFolder}Maneuver_SEENG/readme.txt`, "Maneuver sound files slot");
+            pushFile(`${rootAudioFolder}ShipSystems_SEENG/readme.txt`, "Cockpit & general systems sounds slot");
 
-            // CRC32 verification byte table calculation
+            // Сканируем все структуры и пакуем реальные .wav, сохраненные в оперативном кэше
+            DATA_SBC_FILES_CONFIG.forEach(cfg => {
+                const sounds = state.soundsData[cfg.key] || [];
+                sounds.forEach((snd, sndIdx) => {
+                    snd.waves.forEach((w, waveIdx) => {
+                        const cacheKey = `${cfg.key}_${sndIdx}_${waveIdx}`;
+                        const cachedData = window.binaryFilesCache.waves[cacheKey];
+                        // Если файл был загружен с ПК, пушим его реальное тело в архив
+                        if (cachedData && w.name !== 'none.wav') {
+                            pushFile(`${rootAudioFolder}${cfg.folder}/${w.name}`, cachedData, true);
+                        }
+                    });
+                });
+            });
+
+            // Бинарный алгоритм CRC32 и упаковщик ZIP структур
             function crc32(array) {
                 let table = [];
                 for (let i = 0; i < 256; i++) {
@@ -697,7 +1144,6 @@
                 return (crc ^ (-1)) >>> 0;
             }
 
-            // Binary zip builder pipeline
             let zipParts = [];
             let centralDir = [];
             let offset = 0;
@@ -707,7 +1153,6 @@
                 const fileCrc = crc32(file.data);
                 const size = file.data.length;
 
-                // Local File Header Assembly
                 const lfh = new Uint8Array(30 + filenameBytes.length);
                 lfh.set([0x50, 0x4B, 0x03, 0x04, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0);
                 new DataView(lfh.buffer).setUint32(14, fileCrc, true);
@@ -719,7 +1164,6 @@
                 zipParts.push(lfh);
                 zipParts.push(file.data);
 
-                // Central Directory Record Assembly
                 const cdr = new Uint8Array(46 + filenameBytes.length);
                 cdr.set([0x50, 0x4B, 0x01, 0x02, 20, 0, 10, 0, 0, 0, 0, 0, 0, 0], 0);
                 new DataView(cdr.buffer).setUint32(16, fileCrc, true);
@@ -735,7 +1179,6 @@
 
             const centralDirSize = centralDir.reduce((acc, curr) => acc + curr.length, 0);
 
-            // End of Central Directory Assembly
             const eocd = new Uint8Array(22);
             eocd.set([0x50, 0x4B, 0x05, 0x06, 0, 0, 0, 0], 0);
             new DataView(eocd.buffer).setUint16(8, files.length, true);
@@ -745,15 +1188,13 @@
 
             const blob = new Blob([...zipParts, ...centralDir, eocd], { type: 'application/zip' });
             
-            // Client side direct download anchor trigger
             const dlLink = document.createElement('a');
             dlLink.href = URL.createObjectURL(blob);
-            dlLink.download = `${state.modName.trim() || 'seeng_addon'}.zip`;
+            dlLink.download = `${state.addonPrefix.trim() || 'seeng_addon'}.zip`;
             dlLink.click();
             URL.revokeObjectURL(dlLink.href);
         }
 
-        // Initialize App State
         init();
     </script>
 </body>
