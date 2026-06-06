@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,1151 +8,458 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
         
+        /* Цветовое оформление в глубоких кофейных тонах (Пункт 5) */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0b0f19;
+            background-color: #160f0a; /* Темные кофейные зерна */
+            color: #ebdcd0; /* Нежная молочная пенка */
         }
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Кастомный скроллбар */
+        /* Кастомный скроллбар в цвет темы */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #21160e;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: #443224;
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #5c4432;
         }
     </style>
 </head>
-<body class="text-slate-200 min-h-screen flex flex-col antialiased">
+<body class="min-h-screen flex flex-col antialiased">
 
-    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-            <div class="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-            </div>
+    <header class="border-b border-[#443224] bg-[#1c140e] px-6 py-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-xl font-bold tracking-tight text-white">SEENG Addon Constructor</h1>
-                <p class="text-xs text-slate-400">Professional tool for Space Engineers audio mods modification</p>
+                <h1 class="text-2xl font-bold tracking-tight text-[#d4a373]">SEENG Addon Constructor</h1>
+                <p class="text-xs text-[#a68a75] mt-0.5">Динамическое управление звуковыми конфигурациями</p>
             </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-300 rounded-lg text-sm font-medium transition" data-action="reset">
-                Reset Draft
-            </button>
-            <button id="btn-export-addon" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-lg shadow-blue-500/10 transition flex items-center gap-2" data-action="export">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export Addon (.ZIP)
-            </button>
+            <div class="flex items-center gap-3">
+                <input type="file" id="addonFolderInput" webkitdirectory directory multiple class="hidden" onchange="handleFolderImport(event)">
+                <button onclick="document.getElementById('addonFolderInput').click()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-[#322419] border border-[#5c4432] text-[#ebdcd0] hover:bg-[#443224] transition shadow-md flex items-center gap-2">
+                    📂 Импорт папки аддона
+                </button>
+                <button onclick="exportAddonZip()" class="px-5 py-2 text-sm font-semibold rounded-lg bg-[#b58255] text-[#160f0a] hover:bg-[#c69467] transition shadow-md font-bold flex items-center gap-2">
+                    📦 Скачать архив (.zip)
+                </button>
+            </div>
         </div>
     </header>
 
-    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 space-y-6">
         
-        <main class="flex-1 overflow-y-auto p-6 space-y-8" id="editorForm">
+        <div id="infoPanelContainer" class="hidden bg-[#261b12] border border-[#443224] rounded-xl p-4 shadow-md">
+            <div class="text-xs font-semibold text-[#a68a75] uppercase tracking-wider mb-2">Информация о репозитории (SEENG_INFO.txt)</div>
+            <div id="infoPanelText" class="text-sm text-[#ebdcd0] whitespace-pre-wrap word-break transition-all">Загрузка информации...</div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <section id="sec-core" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">1</span>
-                        Core Information
-                    </h2>
-                    <span class="text-xs text-slate-400">Fields marked with <span class="text-amber-500 font-bold">*</span> are required</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2 md:col-span-2">
-                        <label class="block text-sm font-medium text-amber-400">
-                            Addon Prefix <span class="text-amber-500">*</span>
-                        </label>
-                        <input type="text" id="addon-prefix-input" data-bind="addonPrefix" class="w-full bg-slate-950 border border-amber-800/50 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500 transition" placeholder="e.g. HighShip">
-                        <p class="text-xs text-slate-500">The system prefix that binds this mod's sound pack. This is also used as the root folder name in the generated ZIP file.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Short Description <span class="text-amber-500">*</span>
-                        </label>
-                        <textarea data-bind="descShort" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition" placeholder="Short description of the mod..."></textarea>
-                        <p class="text-xs text-slate-500">Brief overview. Exported to SEENG_desc.txt.</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Detailed Description <span class="text-slate-500">**</span>
-                        </label>
-                        <textarea data-bind="descLong" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500 transition" placeholder="Steam Workshop detailed page content..."></textarea>
-                        <p class="text-xs text-slate-500">HTML or plain text details. Exported to SEENG_descBIG.txt.</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-slate-800/60">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300 flex justify-between">
-                            <span>Mod Thumbnail (thumb.jpg)</span>
-                            <span class="text-xs text-slate-500">Max size: 1 MB</span>
-                        </label>
-                        <input type="file" id="input-thumb-jpg" accept="image/jpeg" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 transition">
-                        <p id="error-thumb-size" class="text-xs text-rose-500 hidden font-medium">⚠️ Error: File size exceeds 1MB threshold!</p>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            SEENG UI Cover (SEENG_thumb.png)
-                        </label>
-                        <input type="file" id="input-seeng-png" accept="image/png" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-400 file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30 transition">
-                    </div>
-                </div>
-            </section>
-
-            <section id="sec-config" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">2</span>
-                        SEENG_Config.sbc Constructor
-                    </h2>
-                    <span class="text-xs text-slate-400">Dynamically generated XML schema</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Configuration Prefix
-                        </label>
-                        <input type="text" id="config-prefix-mirror" class="w-full bg-slate-900/60 border border-slate-800 rounded-lg px-3 py-2 text-slate-400 focus:outline-none cursor-not-allowed" disabled>
-                        <p class="text-xs text-slate-500">Synchronized directly with your Addon Prefix input above.</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Max Engine Pitch Shift <span class="text-slate-500">**</span>
-                        </label>
-                        <input type="number" step="0.1" data-bind="maxPitch" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. 15">
-                        <p class="text-xs text-slate-500">Maximum shift frequency value applied for engine acceleration audio curves.</p>
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-slate-300">
-                            Max Engine 50 Pitch Shift <span class="text-slate-500">**</span>
-                        </label>
-                        <input type="number" step="0.1" data-bind="maxPitch50" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500 transition" placeholder="e.g. 15">
-                        <p class="text-xs text-slate-500">Pitch modulation frequency threshold for engine 50 throttle level state.</p>
-                    </div>
-                </div>
-
-                <div class="space-y-6 pt-2">
-                    
-                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" id="useEngineVolumes" data-bind-bool="useEngineVolumes" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
-                                <label for="useEngineVolumes" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
-                                    Enable SeengEngineVolumes Curve <span class="text-slate-500">**</span>
-                                </label>
-                            </div>
-                            <button id="add-volume-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition hidden" data-toggle-target="useEngineVolumes">
-                                + Add Node
-                            </button>
-                        </div>
-                        
-                        <div id="engine-volumes-container" class="space-y-3 hidden">
-                            <p class="text-xs text-slate-500">Engine sound volume progression based on speed</p>
-                            <div id="engine-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                                </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" id="useEngine50Volumes" data-bind-bool="useEngine50Volumes" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
-                                <label for="useEngine50Volumes" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
-                                    Enable SeengEngine50Volumes Curve <span class="text-slate-500">**</span>
-                                </label>
-                            </div>
-                            <button id="add-volume50-node" class="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded-md text-xs font-semibold border border-blue-500/30 transition hidden" data-toggle-target="useEngine50Volumes">
-                                + Add Node
-                            </button>
-                        </div>
-
-                        <div id="engine50-volumes-container" class="space-y-3 hidden">
-                            <p class="text-xs text-slate-500">Alternative volume configuration profile (50% Load state)</p>
-                            <div id="engine50-volumes-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                                </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950/60 p-5 rounded-xl border border-slate-800 space-y-4">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="useTransmission" data-bind-bool="useTransmission" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-950">
-                            <label for="useTransmission" class="text-sm font-semibold text-blue-400 cursor-pointer select-none">
-                                Include SEENG_TransmissionConfig.sbc <span class="text-slate-500">**</span>
-                            </label>
-                        </div>
-
-                        <div id="transmissionContainer" class="space-y-3 hidden">
-                            <label class="block text-xs font-medium text-slate-400">
-                                Transmission XML Content
-                            </label>
-                            <textarea data-bind="transmissionSbc" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 code-font text-sm focus:outline-none focus:border-blue-500 transition" placeholder="Raw XML..."></textarea>
-                            <p class="text-xs text-slate-500">Configure transmission profiles, gear shift points, ratios or delay dynamics inside this optional config.</p>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-            <section id="sec-data" class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 space-y-6 scroll-mt-24">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-blue-900/60 text-xs font-semibold text-blue-400">3</span>
-                        Data Folder SBC Files
-                    </h2>
-                    <span class="text-xs text-slate-400">Sandbox configuration database studio</span>
-                </div>
-
-                <p class="text-sm text-slate-400">Toggle inclusion checkboxes on file tabs. Select a file to fully customize its nodes visually or modify raw source properties directly:</p>
-
-                <div class="flex flex-wrap gap-2 pb-2" id="sbc-tabs-row">
-                    </div>
-
-                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-5 space-y-6">
+            <div class="space-y-6 lg:col-span-1">
+                <div class="bg-[#261b12] border border-[#443224] rounded-xl p-5 shadow-md space-y-4">
+                    <h2 class="text-lg font-semibold text-[#d4a373] border-b border-[#443224] pb-2">Глобальные параметры</h2>
                     
                     <div>
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-2 mb-4">
-                            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                                SBC Node Visual Constructor
-                            </h3>
-                            <a href="https://spaceengineers.wiki.gg/wiki/Modding/Reference/SBC/Audio_Definition" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition">
-                                SBC Audio Definition Wiki ↗
-                            </a>
-                        </div>
-
-                        <div id="visual-node-builder-root" class="space-y-6">
-                            </div>
+                        <label class="block text-xs font-medium text-[#a68a75] uppercase mb-1">Configuration Prefix</label>
+                        <input type="text" id="globalPrefix" value="MY_ADDON" oninput="updateLiveXml()" class="w-full bg-[#322419] border border-[#443224] rounded-lg px-3 py-2 text-sm text-[#ebdcd0] focus:outline-none focus:border-[#b58255]">
                     </div>
 
-                    <hr class="border-slate-800">
-
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                Direct Source XML Editor (Synchronized)
-                            </label>
-                            <span class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-500">Live Mirroring</span>
-                        </div>
-                        <textarea id="data-raw-xml-textarea" rows="10" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 code-font text-xs focus:outline-none focus:border-blue-500 transition" placeholder="Raw XML database block..."></textarea>
+                    <div>
+                        <label class="block text-xs font-medium text-[#a68a75] uppercase mb-1">Friendly Name</label>
+                        <input type="text" id="friendlyName" value="My Custom Sound Addon" oninput="updateLiveXml()" class="w-full bg-[#322419] border border-[#443224] rounded-lg px-3 py-2 text-sm text-[#ebdcd0] focus:outline-none focus:border-[#b58255]">
                     </div>
 
-                </div>
-            </section>
-        </main>
-
-        <aside class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950 flex flex-col h-auto lg:h-full lg:sticky lg:top-20 overflow-hidden">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/40">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Section Navigation</h3>
-                <nav class="grid grid-cols-3 gap-1">
-                    <a href="#sec-core" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">1. Info</a>
-                    <a href="#sec-config" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">2. SBC</a>
-                    <a href="#sec-data" class="py-1.5 px-1 bg-slate-900 hover:bg-slate-800 text-center rounded text-xs font-semibold border border-slate-800 hover:border-blue-500 transition">3. Data</a>
-                </nav>
-            </div>
-
-            <div class="flex-1 flex flex-col overflow-hidden min-h-[300px] lg:min-h-0">
-                <div class="flex border-b border-slate-800 bg-slate-900/10 text-xs font-medium">
-                    <button id="tab-btn-tree" class="flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-400 bg-slate-950 font-semibold focus:outline-none transition">
-                        Zip Structure
-                    </button>
-                    <button id="tab-btn-xml" class="flex-1 py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none transition">
-                        Config.sbc XML
-                    </button>
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-sm font-medium text-[#ebdcd0]">Включить Volume Curves</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="volumeCurvesToggle" onchange="updateLiveXml()" class="sr-only peer">
+                            <div class="w-11 h-6 bg-[#322419] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#ebdcd0] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#b58255]"></div>
+                        </label>
+                    </div>
                 </div>
 
-                <div id="tab-content-tree" class="flex-1 p-4 overflow-auto code-font text-xs space-y-2">
-                    <div class="text-slate-400 font-semibold mb-2">OUTPUT ZIP DIRECTORY MATRIX:</div>
-                    <pre id="fileTreePreview" class="text-blue-400 leading-relaxed"></pre>
-                </div>
-
-                <div id="tab-content-xml" class="flex-1 p-4 overflow-auto code-font text-xs hidden">
-                    <div class="text-slate-400 font-semibold mb-2">&lt;SEENGConfig&gt; Output Preview:</div>
-                    <pre id="xmlPreviewText" class="text-amber-400 bg-slate-950 p-3 rounded-lg border border-slate-800 overflow-x-auto whitespace-pre"></pre>
+                <div class="bg-[#261b12] border border-[#443224] rounded-xl p-5 shadow-md space-y-3">
+                    <h2 class="text-lg font-semibold text-[#d4a373]">Direct Source XML Editor</h2>
+                    <textarea id="liveXmlEditor" readonly class="w-full h-96 bg-[#160f0a] border border-[#443224] rounded-lg p-3 code-font text-xs text-[#c69467] focus:outline-none resize-none"></textarea>
                 </div>
             </div>
-        </aside>
 
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-[#ebdcd0]">Звуковые модули (.sbc)</h2>
+                    <span id="loadingStatus" class="text-xs text-[#a68a75]">Инициализация...</span>
+                </div>
+
+                <div id="modulesContainer" class="space-y-4"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="tooltipModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[100]" onclick="closeTooltip()">
+        <div class="bg-[#261b12] border border-[#443224] max-w-md w-full rounded-xl p-5 shadow-2xl space-y-3" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start">
+                <h3 id="modalTitle" class="text-base font-bold text-[#d4a373] truncate mr-2">Подсказка к звуку</h3>
+                <button onclick="closeTooltip()" class="text-[#a68a75] hover:text-[#ebdcd0] text-sm font-bold">✕</button>
+            </div>
+            <div id="modalContent" class="text-sm text-[#ebdcd0] bg-[#160f0a] border border-[#443224] p-3 rounded-lg max-h-60 overflow-y-auto whitespace-pre-wrap">
+                Загрузка информации...
+            </div>
+        </div>
     </div>
 
     <script>
-        // Конфигурация доступных файлов Data
-        const DATA_SBC_FILES_CONFIG = [
-            { key: 'data_engine', filename: 'seeng_engine.sbc', folder: 'Engine_SEENG' },
-            { key: 'data_ambience', filename: 'seeng_ambience.sbc', folder: 'Ambience_SEENG' },
-            { key: 'data_thrusters', filename: 'seeng_thrusters.sbc', folder: 'Thrusters_SEENG' },
-            { key: 'data_maneuver', filename: 'seeng_maneuver.sbc', folder: 'Maneuver_SEENG' },
-            { key: 'data_car_engine', filename: 'seeng_car_engine.sbc', folder: 'ShipSystems_SEENG' },
-            { key: 'data_car_engineADV', filename: 'seeng_car_engineADV.sbc', folder: 'ShipSystems_SEENG' },
-            { key: 'data_car_tracks', filename: 'seeng_car_tracks.sbc', folder: 'ShipSystems_SEENG' },
-            { key: 'data_car_wheels', filename: 'seeng_car_wheels.sbc', folder: 'ShipSystems_SEENG' }
+        // Список файлов SBC из корня репозитория (Пункт 1)
+        const SBC_FILES = [
+            'seeng_block_LandingGear.sbc', 'seeng_block_Piston.sbc', 'seeng_block_RotorHinge.sbc',
+            'seeng_car_engine_arcade.sbc', 'seeng_car_engine_speedbased.sbc', 'seeng_car_engine_transmission.sbc',
+            'seeng_ambience_constant.sbc', 'seeng_ambience_moving.sbc', 'seeng_ambience_stationary.sbc',
+            'seeng_block_CargoBlocks.sbc', 'seeng_car_tracks.sbc', 'seeng_car_wheels.sbc',
+            'seeng_ship_ACDCadv.sbc', 'seeng_ship_engine.sbc', 'seeng_ship_engine50.sbc',
+            'seeng_ship_maneuver_gyro.sbc', 'seeng_ship_maneuver_thrusters.sbc', 'seeng_ship_speedUpDown.sbc',
+            'seeng_ship_thrusters.sbc'
         ];
 
-        // Глобальный кэш для загружаемых бинарных файлов (изображения и звуки .wav)
-        window.binaryFilesCache = {
-            thumbJpg: null,
-            seengThumbPng: null,
-            waves: {} // Структура: { "fileKey_soundIdx_waveIdx": { bytes: Uint8Array, name: "filename.wav" } }
+        // Глобальное состояние приложения
+        let appState = {
+            modules: [] // Хранит распарсенные данные из .sbc
         };
 
-        // Начальная структура дефолтных визуальных звуков для каждого файла
-        const INITIAL_SOUNDS_STRUCTURE = {
-            data_ambience: [
-                {
-                    subtypeIdBase: 'SeengMoveAmbience_',
-                    hint: 'Воспроизводится в реальном времени при нахождении корабля/сетки в движении.',
-                    maxDistance: 15,
-                    volume: 1.0,
-                    category: '',
-                    waves: [{ name: 'none.wav' }],
-                    showOptVolumeVar: false, volumeVar: 0,
-                    showOptPitch: false, pitch: 1.0,
-                    showOptPitchVar: false, pitchVar: 0
-                },
-                {
-                    subtypeIdBase: 'SeengAmbienceConstant_',
-                    hint: 'Постоянный фоновый фонормальный гул систем мостика или жизнеобеспечения.',
-                    maxDistance: 250,
-                    volume: 1.0,
-                    category: '',
-                    waves: [{ name: 'none.wav' }],
-                    showOptVolumeVar: false, volumeVar: 0,
-                    showOptPitch: false, pitch: 1.0,
-                    showOptPitchVar: false, pitchVar: 0
-                },
-                {
-                    subtypeIdBase: 'SeengStationaryAmbience_',
-                    hint: 'Акустическая петля окружения корабля, когда он полностью неподвижен.',
-                    maxDistance: 250,
-                    volume: 1.0,
-                    category: 'SHIP',
-                    waves: [{ name: 'none.wav' }],
-                    showOptVolumeVar: false, volumeVar: 0,
-                    showOptPitch: false, pitch: 1.0,
-                    showOptPitchVar: false, pitchVar: 0
+        // Запуск при загрузке страницы
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadSeengInfo();
+            await loadAllSbcFiles();
+            updateLiveXml();
+        });
+
+        // Загрузка SEENG_INFO.txt (Пункт 10)
+        async function loadSeengInfo() {
+            const container = document.getElementById('infoPanelContainer');
+            const textEl = document.getElementById('infoPanelText');
+            try {
+                const response = await fetch('SEENG_INFO.txt');
+                if (response.ok) {
+                    const txt = await response.text();
+                    textEl.textContent = txt.trim();
+                    container.classList.remove('hidden');
                 }
-            ],
-            data_engine: [
-                { subtypeIdBase: 'SeengEngine_Base_', hint: 'Базовый акустический профиль силовой установки.', maxDistance: 100, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_thrusters: [
-                { subtypeIdBase: 'SeengThruster_Base_', hint: 'Звук реактивной струи маршевых разгонных ускорителей.', maxDistance: 150, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_maneuver: [
-                { subtypeIdBase: 'SeengManeuver_Base_', hint: 'Срабатывание маневровых гироскопических или газовых систем.', maxDistance: 80, volume: 1.0, category: 'SHIP', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_car_engine: [
-                { subtypeIdBase: 'SeengCarEngine_Base_', hint: 'Работа стандартных узлов ДВС колесной наземной техники.', maxDistance: 120, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_car_engineADV: [
-                { subtypeIdBase: 'SeengCarEngineAdv_Base_', hint: 'Модифицированный продвинутый многофазный звук планетоходов.', maxDistance: 120, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_car_tracks: [
-                { subtypeIdBase: 'SeengCarTracks_Base_', hint: 'Лязг, трение и шум тяжелых приводных траков/гусениц.', maxDistance: 100, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ],
-            data_car_wheels: [
-                { subtypeIdBase: 'SeengCarWheels_Base_', hint: 'Шум протектора шин при качении по грунту или деформации.', maxDistance: 60, volume: 1.0, category: 'WHEEL', waves: [{ name: 'none.wav' }], showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0 }
-            ]
-        };
-
-        const DEFAULT_STATE = {
-            addonPrefix: 'V8_Performance',
-            descShort: 'High performance engine acoustics configuration addon.',
-            descLong: 'Immersive sound overhaul introducing customizable volumetric engine curves and gear simulation.',
-            maxPitch: 7.5,
-            maxPitch50: 10.0,
-            useEngineVolumes: true,
-            useEngine50Volumes: true,
-            useTransmission: false,
-            transmissionSbc: '<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  \n  <GearRatioShiftDelay>0.45</GearRatioShiftDelay>\n</Definitions>',
-            engineVolumes: [
-                { speed: 0, volume: 0.15 },
-                { speed: 25, volume: 0.45 },
-                { speed: 60, volume: 0.8 },
-                { speed: 100, volume: 1.0 }
-            ],
-            engine50Volumes: [
-                { speed: 0, volume: 0.1 },
-                { speed: 30, volume: 0.35 },
-                { speed: 75, volume: 0.75 },
-                { speed: 100, volume: 0.9 }
-            ],
-            // Состояние включения файлов в сборку
-            data_engine: true,
-            data_ambience: true,
-            data_thrusters: false,
-            data_maneuver: false,
-            data_car_engine: false,
-            data_car_engineADV: false,
-            data_car_tracks: false,
-            data_car_wheels: false,
-            // Текущий выбранный таб в секции 3
-            currentSelectedDataKey: 'data_ambience',
-            // Хранилище объектов визуального конструктора
-            soundsData: JSON.parse(JSON.stringify(INITIAL_SOUNDS_STRUCTURE))
-        };
-
-        let state = JSON.parse(localStorage.getItem('seeng_configurator_data_v2')) || JSON.parse(JSON.stringify(DEFAULT_STATE));
-
-        // Безопасная инициализация отсутствующих полей при обновлении хранилища
-        if (!state.soundsData || !state.soundsData.data_ambience) {
-            state.soundsData = JSON.parse(JSON.stringify(INITIAL_SOUNDS_STRUCTURE));
-        }
-        if (!state.currentSelectedDataKey) {
-            state.currentSelectedDataKey = 'data_ambience';
+            } catch (e) {
+                console.log("Файл SEENG_INFO.txt отсутствует или недоступен.");
+            }
         }
 
-        // Запуск
-        function init() {
-            // Привязка простых текстовых полей input
-            document.querySelectorAll('[data-bind]').forEach(el => {
-                const prop = el.getAttribute('data-bind');
-                if (state[prop] !== undefined) {
-                    el.value = state[prop];
-                }
-            });
-
-            // Привязка простых чекбоксов bool
-            document.querySelectorAll('[data-bind-bool]').forEach(el => {
-                const prop = el.getAttribute('data-bind-bool');
-                if (state[prop] !== undefined) {
-                    el.checked = !!state[prop];
-                }
-            });
-
-            // Инициализация обработчиков обложек
-            initCoversHandlers();
-
-            syncPrefixMirror();
-            toggleConditionalFields();
-            renderVolumeNodes('engine-volumes-list', 'engineVolumes');
-            renderVolumeNodes('engine50-volumes-list', 'engine50Volumes');
+        // Динамический парсинг файлов .sbc вместо хардкода (Пункт 1)
+        async function loadAllSbcFiles() {
+            const statusEl = document.getElementById('loadingStatus');
+            statusEl.textContent = "Синхронизация с репозиторием...";
             
-            // Рендер новой табированной системы Раздела 3
-            renderDataTabsLayout();
-            refreshActiveDataTabWorkspace();
-
-            renderXmlPreview();
-            renderFileTree();
+            for (const file of SBC_FILES) {
+                try {
+                    const response = await fetch(file);
+                    if (!response.ok) continue;
+                    const xmlText = await response.text();
+                    parseAndAddSbc(file, xmlText);
+                } catch (e) {
+                    console.error(`Не удалось загрузить ${file}:`, e);
+                }
+            }
+            
+            statusEl.textContent = `Загружено модулей: ${appState.modules.length}`;
+            renderModules();
         }
 
-        function saveState() {
-            localStorage.setItem('seeng_configurator_data_v2', JSON.stringify(state));
-            renderXmlPreview();
-            renderFileTree();
-        }
+        // Внутренний парсер XML структуры SBC (Пункт 1, 2, 3)
+        function parseAndAddSbc(filename, xmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+            const soundNodes = xmlDoc.getElementsByTagName("Sound");
+            
+            let sounds = [];
+            for (let soundNode of soundNodes) {
+                const subtypeId = soundNode.getElementsByTagName("Id")[0]?.getElementsByTagName("SubtypeId")[0]?.textContent || "";
+                if (!subtypeId) continue;
 
-        function syncPrefixMirror() {
-            const elMirror = document.getElementById('config-prefix-mirror');
-            if (elMirror) {
-                elMirror.value = state.addonPrefix;
-            }
-        }
+                const maxDistance = soundNode.getElementsByTagName("MaxDistance")[0]?.textContent || "100";
+                const volume = soundNode.getElementsByTagName("Volume")[0]?.textContent || "1.0";
+                
+                // Проверяем тип волны: Loop или Start (Пункт 2, 3)
+                const loopNode = soundNode.getElementsByTagName("Loop")[0];
+                const startNode = soundNode.getElementsByTagName("Start")[0];
+                const isLoopable = !!loopNode;
 
-        function toggleConditionalFields() {
-            const evContainer = document.getElementById('engine-volumes-container');
-            const evBtn = document.querySelector('[data-toggle-target="useEngineVolumes"]');
-            if (state.useEngineVolumes) {
-                evContainer.classList.remove('hidden');
-                evBtn.classList.remove('hidden');
-            } else {
-                evContainer.classList.add('hidden');
-                evBtn.classList.add('hidden');
-            }
-
-            const e50Container = document.getElementById('engine50-volumes-container');
-            const e50Btn = document.querySelector('[data-toggle-target="useEngine50Volumes"]');
-            if (state.useEngine50Volumes) {
-                e50Container.classList.remove('hidden');
-                e50Btn.classList.remove('hidden');
-            } else {
-                e50Container.classList.add('hidden');
-                e50Btn.classList.add('hidden');
-            }
-
-            const transContainer = document.getElementById('transmissionContainer');
-            if (state.useTransmission) {
-                transContainer.classList.remove('hidden');
-            } else {
-                transContainer.classList.add('hidden');
-            }
-        }
-
-        // Инициализация загрузчиков изображений с валидацией размера
-        function initCoversHandlers() {
-            const inpJpg = document.getElementById('input-thumb-jpg');
-            const errJpg = document.getElementById('error-thumb-size');
-            const inpPng = document.getElementById('input-seeng-png');
-            const btnExport = document.getElementById('btn-export-addon');
-
-            if (inpJpg) {
-                inpJpg.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    if (file.size > 1024 * 1024) {
-                        errJpg.classList.remove('hidden');
-                        btnExport.disabled = true;
-                        btnExport.classList.add('opacity-50', 'cursor-not-allowed');
-                        window.binaryFilesCache.thumbJpg = null;
-                        return;
-                    }
-
-                    errJpg.classList.add('hidden');
-                    btnExport.disabled = false;
-                    btnExport.classList.remove('opacity-50', 'cursor-not-allowed');
-
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        window.binaryFilesCache.thumbJpg = new Uint8Array(evt.target.result);
-                    };
-                    reader.readAsArrayBuffer(file);
+                sounds.push({
+                    subtypeId: subtypeId,
+                    isLoopable: isLoopable,
+                    defaultVolume: volume,
+                    defaultMaxDistance: maxDistance,
+                    customVolume: volume,
+                    customMaxDistance: maxDistance
                 });
             }
 
-            if (inpPng) {
-                inpPng.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = function(evt) {
-                        window.binaryFilesCache.seengThumbPng = new Uint8Array(evt.target.result);
-                    };
-                    reader.readAsArrayBuffer(file);
+            if (sounds.length > 0) {
+                appState.modules.push({
+                    filename: filename,
+                    enabled: true, // По умолчанию включен (Пункт 1)
+                    sounds: sounds
                 });
             }
         }
 
-        // Генерация XML кода по структурам данных конструктора звуков
-        function serializeSoundsToXml(fileKey) {
-            const pfx = (state.addonPrefix || 'addonprefix').trim();
-            const config = DATA_SBC_FILES_CONFIG.find(c => c.key === fileKey);
-            const folder = config ? config.folder : 'Ambience_SEENG';
+        // Отрендерить интерфейс карточек
+        function renderModules() {
+            const container = document.getElementById('modulesContainer');
+            container.innerHTML = "";
 
-            let xml = `<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <Sounds>\n`;
-            
-            const list = state.soundsData[fileKey] || [];
-            list.forEach(snd => {
-                xml += `    <Sound>\n`;
-                xml += `      <Id>\n`;
-                xml += `        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>\n`;
-                xml += `        <SubtypeId>${snd.subtypeIdBase}${pfx}</SubtypeId>\n`;
-                xml += `      </Id>\n`;
-                if (snd.category && snd.category.trim() !== '') {
-                    xml += `      <Category>${snd.category.trim()}</Category>\n`;
-                }
-                xml += `      <MaxDistance>${snd.maxDistance || 0}</MaxDistance>\n`;
-                xml += `      <Volume>${Number(snd.volume || 0).toFixed(1)}</Volume>\n`;
-                xml += `      <Loopable>true</Loopable>\n`;
-
-                if (snd.showOptVolumeVar) {
-                    xml += `      <VolumeVariation>${Number(snd.volumeVar || 0).toFixed(1)}</VolumeVariation>\n`;
-                }
-                if (snd.showOptPitch) {
-                    xml += `      <Pitch>${Number(snd.pitch || 0).toFixed(1)}</Pitch>\n`;
-                }
-                if (snd.showOptPitchVar) {
-                    xml += `      <PitchVariation>${Number(snd.pitchVar || 0).toFixed(1)}</PitchVariation>\n`;
-                }
-
-                xml += `      <Waves>\n`;
-                if (snd.waves && snd.waves.length > 0) {
-                    snd.waves.forEach(w => {
-                        xml += `        <Wave Type="D3">\n`;
-                        xml += `          <Loop>AUDIO_SEENG\\${folder}\\${w.name}</Loop>\n`;
-                        xml += `        </Wave>\n`;
-                    });
-                } else {
-                    xml += `        <Wave Type="D3">\n`;
-                    xml += `          <Loop>AUDIO_SEENG\\${folder}\\none.wav</Loop>\n`;
-                    xml += `        </Wave>\n`;
-                }
-                xml += `      </Waves>\n`;
-                xml += `    </Sound>\n`;
-            });
-
-            xml += `  </Sounds>\n</Definitions>`;
-            return xml;
-        }
-
-        // Рендер панели вкладок (Выбор файлов в разделе 3)
-        function renderDataTabsLayout() {
-            const container = document.getElementById('sbc-tabs-row');
-            if (!container) return;
-            container.innerHTML = '';
-
-            DATA_SBC_FILES_CONFIG.forEach(cfg => {
-                const isActive = (state.currentSelectedDataKey === cfg.key);
-                const isChecked = !!state[cfg.key];
-
-                const tabBtn = document.createElement('div');
-                // Базовые стили и условная янтарная подсветка
-                tabBtn.className = `flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-semibold cursor-pointer transition select-none ${
-                    isActive 
-                    ? 'border-amber-500 bg-slate-900 shadow-lg shadow-amber-500/5 text-amber-400 ring-1 ring-amber-500/20' 
-                    : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:bg-slate-900/60 hover:text-slate-200'
-                }`;
-
-                tabBtn.innerHTML = `
-                    <input type="checkbox" id="tab-chk-${cfg.key}" ${isChecked ? 'checked' : ''} class="w-3.5 h-3.5 text-blue-600 bg-slate-950 border-slate-800 rounded focus:ring-blue-500 focus:ring-offset-slate-900 cursor-pointer">
-                    <span class="flex-1 truncate py-0.5">${cfg.filename}</span>
+            appState.modules.forEach((mod, modIdx) => {
+                const card = document.createElement('div');
+                card.className = `bg-[#261b12] border ${mod.enabled ? 'border-[#443224]' : 'border-dashed border-stone-700 opacity-60'} rounded-xl p-5 shadow-md transition-all`;
+                
+                // Заголовок карточки с выключателем модуля (Пункт 1)
+                let html = `
+                    <div class="flex justify-between items-center border-b border-[#443224] pb-3 mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-[#d4a373] code-font">${mod.filename}</span>
+                            <span class="text-[10px] bg-[#322419] border border-[#5c4432] text-[#a68a75] px-2 py-0.5 rounded-full">Эффектов: ${mod.sounds.length}</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" ${mod.enabled ? 'checked' : ''} onchange="toggleModule(${modIdx}, this.checked)" class="sr-only peer">
+                            <div class="w-9 h-5 bg-[#322419] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#ebdcd0] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#b58255]"></div>
+                        </label>
+                    </div>
+                    <div class="space-y-3 ${mod.enabled ? '' : 'pointer-events-none select-none'}">
                 `;
 
-                // Клик по тексту переключает активный таб
-                tabBtn.addEventListener('click', (e) => {
-                    if (e.target.tagName === 'INPUT') return; // игнорируем если клик по самому чекбоксу
-                    state.currentSelectedDataKey = cfg.key;
-                    saveState();
-                    renderDataTabsLayout();
-                    refreshActiveDataTabWorkspace();
-                });
-
-                // Клик по чекбоксу включает/выключает файл в генерацию ZIP
-                tabBtn.querySelector('input').addEventListener('change', (e) => {
-                    state[cfg.key] = e.target.checked;
-                    saveState();
-                });
-
-                container.appendChild(tabBtn);
-            });
-        }
-
-        // Перерисовка визуального конструктора и текстового поля для выбранной вкладки
-        function refreshActiveDataTabWorkspace() {
-            const activeKey = state.currentSelectedDataKey;
-            const soundsList = state.soundsData[activeKey] || [];
-            
-            // 1. Отрисовка визуальных карточек
-            const vRoot = document.getElementById('visual-node-builder-root');
-            vRoot.innerHTML = '';
-
-            if (soundsList.length === 0) {
-                vRoot.innerHTML = `<p class="text-xs text-slate-500 italic">No structured sounds defined for this format schema.</p>`;
-            } else {
-                soundsList.forEach((snd, sndIdx) => {
-                    const card = document.createElement('div');
-                    card.className = 'p-4 bg-slate-900/60 border border-slate-800/80 rounded-xl space-y-4 relative group';
-                    
-                    // Построение блока Waves
-                    let wavesHtml = '';
-                    snd.waves.forEach((w, wIdx) => {
-                        wavesHtml += `
-                            <div class="flex items-center gap-2 bg-slate-950/80 p-2 rounded-lg border border-slate-800/40">
-                                <span class="text-[10px] text-slate-500 font-bold code-font">WAVE #${wIdx + 1}:</span>
-                                <span class="text-xs text-slate-300 truncate flex-1 code-font">${w.name}</span>
-                                <input type="file" accept=".wav" data-wave-upload="${activeKey}_${sndIdx}_${wIdx}" class="hidden" id="file_${activeKey}_${sndIdx}_${wIdx}">
-                                <label for="file_${activeKey}_${sndIdx}_${wIdx}" class="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 rounded text-[10px] font-medium cursor-pointer transition">
-                                    Choose .WAV
-                                </label>
-                                ${snd.waves.length > 1 ? `
-                                    <button class="p-1 hover:bg-slate-800 text-rose-400 rounded transition" data-action="delete-wave" data-snd-idx="${sndIdx}" data-wave-idx="${wIdx}">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
-                                ` : ''}
+                // Список звуков внутри модуля
+                mod.sounds.forEach((sound, sIdx) => {
+                    // Визуально префикс аддона не дописывается к названию (Пункт 7)
+                    html += `
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#160f0a] border border-[#443224] rounded-lg p-3">
+                            <div class="flex items-center gap-2 max-w-xs md:max-w-md truncate">
+                                <button onclick="showTooltip('${sound.subtypeId}')" class="text-[#00ff66] font-bold hover:text-green-300 transition duration-150 transform hover:scale-110 flex-shrink-0" title="Показать описание">
+                                    ⓘ
+                                </button>
+                                <span class="text-xs font-semibold text-[#ebdcd0] code-font truncate" title="${sound.subtypeId}">${sound.subtypeId}</span>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase ${sound.isLoopable ? 'bg-amber-900/40 text-[#c68642]' : 'bg-stone-800 text-stone-400'}">
+                                    ${sound.isLoopable ? 'Loop' : 'Start'}
+                                </span>
                             </div>
-                        `;
-                    });
-
-                    card.innerHTML = `
-                        <div class="flex items-center justify-between border-b border-slate-800/60 pb-2">
-                            <div class="flex items-center gap-2 relative">
-                                <span class="text-sm font-bold text-slate-200 code-font">${snd.subtypeIdBase}<span class="text-amber-500">${(state.addonPrefix || 'addonprefix')}</span></span>
-                                
-                                <div class="relative group/tooltip inline-block">
-                                    <span class="flex h-4 w-4 items-center justify-center rounded-full bg-slate-800 text-[10px] text-slate-400 font-bold cursor-help hover:bg-slate-700">i</span>
-                                    <div class="absolute bottom-6 left-0 w-64 p-2 bg-slate-950 border border-slate-700 text-slate-300 text-[11px] rounded shadow-xl hidden group-hover/tooltip:block z-50 leading-normal font-normal">
-                                        ${snd.hint || 'Custom dynamic definition subnode schema.'}
-                                    </div>
+                            <div class="flex items-center gap-4 text-xs">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[#a68a75]">Vol:</span>
+                                    <input type="number" step="0.1" min="0" value="${sound.customVolume}" oninput="updateSoundParam(${modIdx}, ${sIdx}, 'customVolume', this.value)" class="w-14 bg-[#322419] border border-[#443224] rounded px-1.5 py-0.5 text-center text-[#ebdcd0]">
                                 </div>
-                            </div>
-                            <span class="text-[10px] bg-slate-950 px-2 py-0.5 rounded text-slate-500 font-medium code-font">AudioDefinition</span>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">MaxDistance</label>
-                                <input type="number" step="0.1" value="${snd.maxDistance}" data-sound-input="maxDistance" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Volume</label>
-                                <input type="number" step="0.05" value="${snd.volume}" data-sound-input="volume" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-                            </div>
-                        </div>
-
-                        <div class="space-y-3 bg-slate-950/40 p-3 rounded-lg border border-slate-800/40">
-                            <div class="flex flex-wrap gap-2">
-                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptVolumeVar ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptVolumeVar" data-snd-idx="${sndIdx}">
-                                    ${snd.showOptVolumeVar ? '✓' : '+'} VolumeVariation
-                                </button>
-                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptPitch ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptPitch" data-snd-idx="${sndIdx}">
-                                    ${snd.showOptPitch ? '✓' : '+'} Pitch
-                                </button>
-                                <button class="px-2 py-0.5 rounded text-[10px] font-medium transition ${snd.showOptPitchVar ? 'bg-amber-600/20 border border-amber-500 text-amber-400' : 'bg-slate-800 border border-transparent text-slate-400 hover:text-slate-300'}" data-action="toggle-opt" data-prop="showOptPitchVar" data-snd-idx="${sndIdx}">
-                                    ${snd.showOptPitchVar ? '✓' : '+'} PitchVariation
-                                </button>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                ${snd.showOptVolumeVar ? `
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] text-slate-400 block font-medium">VolumeVariation:</span>
-                                        <input type="number" step="0.1" value="${snd.volumeVar}" data-sound-input="volumeVar" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                                    </div>
-                                ` : ''}
-                                ${snd.showOptPitch ? `
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] text-slate-400 block font-medium">Pitch:</span>
-                                        <input type="number" step="0.1" value="${snd.pitch}" data-sound-input="pitch" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                                    </div>
-                                ` : ''}
-                                ${snd.showOptPitchVar ? `
-                                    <div class="space-y-1">
-                                        <span class="text-[10px] text-slate-400 block font-medium">PitchVariation:</span>
-                                        <input type="number" step="0.1" value="${snd.pitchVar}" data-sound-input="pitchVar" data-snd-idx="${sndIdx}" class="w-full bg-slate-950 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                                    </div>
-                                ` : ''}
-                            </div>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Audio Tracks Pool (Waves)</span>
-                                <button class="px-2 py-0.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/20 text-[10px] font-semibold rounded transition" data-action="add-wave" data-snd-idx="${sndIdx}">
-                                    + Add Wave Loop
-                                </button>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                ${wavesHtml}
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[#a68a75]">Dist:</span>
+                                    <input type="number" step="10" min="0" value="${sound.customMaxDistance}" oninput="updateSoundParam(${modIdx}, ${sIdx}, 'customMaxDistance', this.value)" class="w-16 bg-[#322419] border border-[#443224] rounded px-1.5 py-0.5 text-center text-[#ebdcd0]">
+                                </div>
                             </div>
                         </div>
                     `;
-                    vRoot.appendChild(card);
                 });
-            }
 
-            // Навешивание событий загрузки .wav файлов на созданные инпуты
-            vRoot.querySelectorAll('input[data-wave-upload]').forEach(inputEl => {
-                inputEl.addEventListener('change', (evt) => {
-                    const file = evt.target.files[0];
-                    if (!file) return;
-
-                    const keyTag = evt.target.getAttribute('data-wave-upload');
-                    const parts = keyTag.split('_'); // [data, ambience, sndIdx, waveIdx]
-                    const fKey = `${parts[0]}_${parts[1]}`;
-                    const sIdx = parseInt(parts[2]);
-                    const wIdx = parseInt(parts[3]);
-
-                    // Запись оригинального имени в стейт
-                    state.soundsData[fKey][sIdx].waves[wIdx].name = file.name;
-
-                    // Чтение бинарного содержимого в глобальный оперативный кэш
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        window.binaryFilesCache.waves[keyTag] = new Uint8Array(e.target.result);
-                        saveState();
-                        refreshActiveDataTabWorkspace();
-                    };
-                    reader.readAsArrayBuffer(file);
-                });
-            });
-
-            // 2. Генерация текста в нижнее окно прямого редактирования XML
-            const txtArea = document.getElementById('data-raw-xml-textarea');
-            if (txtArea) {
-                txtArea.value = serializeSoundsToXml(activeKey);
-            }
-        }
-
-        // Отрисовка списка точек аудио-кривых в Разделе 2
-        function renderVolumeNodes(containerId, listProp) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            container.innerHTML = '';
-            state[listProp].sort((a, b) => a.speed - b.speed);
-
-            state[listProp].forEach((node, index) => {
-                const nodeRow = document.createElement('div');
-                nodeRow.className = 'flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-800/60';
-                nodeRow.innerHTML = `
-                    <div class="flex-1 grid grid-cols-2 gap-2">
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] text-slate-500 font-semibold uppercase">Speed:</span>
-                            <input type="number" min="0" max="100" step="1" value="${node.speed}" data-node-prop="speed" data-node-list="${listProp}" data-node-index="${index}" class="w-full bg-slate-950 border border-slate-800/80 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] text-slate-500 font-semibold uppercase">Vol:</span>
-                            <input type="number" min="0" max="1" step="0.05" value="${node.volume}" data-node-prop="volume" data-node-list="${listProp}" data-node-index="${index}" class="w-full bg-slate-950 border border-slate-800/80 rounded px-1.5 py-0.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
-                        </div>
-                    </div>
-                    <button type="button" data-action="delete-node" data-node-list="${listProp}" data-node-index="${index}" class="p-1 hover:bg-slate-800 text-rose-500 rounded transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
-                `;
-                container.appendChild(nodeRow);
+                html += `</div>`;
+                card.innerHTML = html;
+                container.appendChild(card);
             });
         }
 
-        // Генерация результирующего XML для главного SEENG_Config.sbc
-        function generateSbcXml() {
-            let xml = `<?xml version="1.0" encoding="utf-8"?>\n<SEENGConfig>\n`;
-            xml += `  <Prefix>${state.addonPrefix}</Prefix>\n`;
-            if (state.maxPitch !== null && state.maxPitch !== undefined && state.maxPitch !== '') {
-                xml += `  <MaxEnginePitchShift>${state.maxPitch}</MaxEnginePitchShift>\n`;
-            }
-            if (state.maxPitch50 !== null && state.maxPitch50 !== undefined && state.maxPitch50 !== '') {
-                xml += `  <MaxEngine50PitchShift>${state.maxPitch50}</MaxEngine50PitchShift>\n`;
-            }
+        // Триггеры изменения состояния компонентов
+        function toggleModule(idx, isChecked) {
+            appState.modules[idx].enabled = isChecked;
+            renderModules();
+            updateLiveXml();
+        }
 
-            if (state.useEngineVolumes && state.engineVolumes.length > 0) {
-                xml += `  <SeengEngineVolumes>\n`;
-                state.engineVolumes.forEach(node => {
-                    xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
+        function updateSoundParam(modIdx, sIdx, param, val) {
+            appState.modules[modIdx].sounds[sIdx][param] = val;
+            updateLiveXml();
+        }
+
+        // Интерактивные подсказки из внешних CMT_ файлов (Пункт 8)
+        async function showTooltip(subtypeId) {
+            const modal = document.getElementById('tooltipModal');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            title.textContent = `${subtypeId}`;
+            content.textContent = "Загрузка описания...";
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            try {
+                const response = await fetch(`CMT_${subtypeId}.txt`);
+                if (response.ok) {
+                    content.textContent = (await response.text()).trim();
+                } else {
+                    content.textContent = `Пользовательское описание для данного звукового эффекта не найдено.\n(Файл CMT_${subtypeId}.txt отсутствует в директории)`;
+                }
+            } catch (e) {
+                content.textContent = "Произошла ошибка при загрузке файла описания.";
+            }
+        }
+
+        function closeTooltip() {
+            const modal = document.getElementById('tooltipModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Генерация результирующего XML файла конфигурации (Пункт 2, 7, 9)
+        function generateAddonXml() {
+            const prefix = document.getElementById('globalPrefix').value.trim() || "ADDON";
+            const friendlyName = document.getElementById('friendlyName').value.trim() || "Sound Addon";
+            const volumeCurves = document.getElementById('volumeCurvesToggle').checked;
+
+            let xml = `<?xml version="1.0" encoding="utf-8"?>\n`;
+            xml += `<SeengAddonConfig>\n`;
+            xml += `    <Prefix>${prefix}</Prefix>\n`;
+            xml += `    <FriendlyName>${friendlyName}</FriendlyName>\n`;
+            xml += `    <VolumeCurves>${volumeCurves}</VolumeCurves>\n`;
+            xml += `    <Modules>\n`;
+
+            appState.modules.forEach(mod => {
+                // Если модуль выключен, он не добавляется в конфигурацию / архив (Пункт 1)
+                if (!mod.enabled) return;
+
+                xml += `        <Module Filename="${mod.filename}">\n`;
+                mod.sounds.forEach(sound => {
+                    xml += `            <Sound SubtypeId="${sound.subtypeId}">\n`;
+                    xml += `                <Volume>${sound.customVolume}</Volume>\n`;
+                    xml += `                <MaxDistance>${sound.customMaxDistance}</MaxDistance>\n`;
+                    xml += `                <Loopable>${sound.isLoopable}</Loopable>\n`;
+                    xml += `            </Sound>\n`;
                 });
-                xml += `  </SeengEngineVolumes>\n`;
-            }
+                xml += `        </Module>\n`;
+            });
 
-            if (state.useEngine50Volumes && state.engine50Volumes.length > 0) {
-                xml += `  <SeengEngine50Volumes>\n`;
-                state.engine50Volumes.forEach(node => {
-                    xml += `    <SeengEngineVolume Speed="${node.speed}" Volume="${node.volume}" />\n`;
-                });
-                xml += `  </SeengEngine50Volumes>\n`;
-            }
-
-            xml += `</SEENGConfig>`;
+            xml += `    </Modules>\n`;
+            xml += `</SeengAddonConfig>`;
             return xml;
         }
 
-        function renderXmlPreview() {
-            const elPreview = document.getElementById('xmlPreviewText');
-            if (elPreview) {
-                elPreview.textContent = generateSbcXml();
-            }
+        function updateLiveXml() {
+            document.getElementById('liveXmlEditor').value = generateAddonXml();
         }
 
-        function renderFileTree() {
-            const pfx = (state.addonPrefix || 'addonprefix').trim();
-            
-            let tree = `${pfx}/\n`;
-            tree += `├── SEENG_Config.sbc\n`;
-            tree += `├── SEENG_desc.txt\n`;
-            tree += `├── SEENG_descBIG.txt\n`;
-            tree += `├── SEENG_thumb.png ${window.binaryFilesCache.seengThumbPng ? '[[custom image]]' : '[[placeholder image]]'}\n`;
-            tree += `├── thumb.jpg ${window.binaryFilesCache.thumbJpg ? '[[custom image]]' : '[[placeholder image]]'}\n`;
-            
-            if (state.useTransmission) {
-                tree += `├── SEENG_TransmissionConfig.sbc\n`;
-            }
+        // Возможность импортировать существующий аддон (Пункт 11)
+        async function handleFolderImport(event) {
+            const files = event.target.files;
+            if (!files.length) return;
 
-            const hasSbcFiles = DATA_SBC_FILES_CONFIG.some(cfg => state[cfg.key]);
-            if (hasSbcFiles) {
-                tree += `├── Data/\n`;
-                DATA_SBC_FILES_CONFIG.forEach(cfg => {
-                    if (state[cfg.key]) {
-                        tree += `│   ├── ${cfg.filename}\n`;
-                    }
-                });
-            }
+            let configXmlFile = null;
+            let infoFile = null;
+            let customTooltips = {};
 
-            tree += `└── AUDIO_SEENG_${pfx}/\n`;
-            tree += `    ├── Engine_SEENG/\n`;
-            tree += `    ├── Ambience_SEENG/\n`;
-            tree += `    ├── Thrusters_SEENG/\n`;
-            tree += `    ├── Maneuver_SEENG/\n`;
-            tree += `    └── ShipSystems_SEENG/\n`;
-
-            document.getElementById('fileTreePreview').textContent = tree;
-        }
-
-        // Общие обработчики ввода данных (input)
-        document.addEventListener('input', (e) => {
-            const target = e.target;
-            
-            if (target.hasAttribute('data-bind')) {
-                const prop = target.getAttribute('data-bind');
-                state[prop] = target.value;
-                if (prop === 'addonPrefix') {
-                    syncPrefixMirror();
-                    refreshActiveDataTabWorkspace();
-                }
-                saveState();
-            }
-
-            // Слушатель прямых изменений полей ввода в визуальных карточках звуков
-            if (target.hasAttribute('data-sound-input')) {
-                const fieldProp = target.getAttribute('data-sound-input');
-                const sIdx = parseInt(target.getAttribute('data-snd-idx'));
-                const activeKey = state.currentSelectedDataKey;
-                
-                let value = target.value;
-                if (fieldProp === 'maxDistance' || fieldProp === 'volume' || fieldProp === 'volumeVar' || fieldProp === 'pitch' || fieldProp === 'pitchVar') {
-                    value = parseFloat(target.value) || 0;
-                }
-
-                state.soundsData[activeKey][sIdx][fieldProp] = value;
-                saveState();
-
-                // Обновляем текстовый XML без полной перерисовки элементов формы ввода
-                const txtArea = document.getElementById('data-raw-xml-textarea');
-                if (txtArea) {
-                    txtArea.value = serializeSoundsToXml(activeKey);
+            // Сканируем загруженные файлы папки
+            for (let file of files) {
+                const name = file.name;
+                if (name === "addon_config.xml" || (name.endsWith(".xml") && !name.endsWith(".sbc"))) {
+                    configXmlFile = file;
+                } else if (name === "SEENG_INFO.txt") {
+                    infoFile = file;
                 }
             }
 
-            if (target.hasAttribute('data-node-prop')) {
-                const listProp = target.getAttribute('data-node-list');
-                const idx = parseInt(target.getAttribute('data-node-index'));
-                const nodeProp = target.getAttribute('data-node-prop');
-                
-                let val = parseFloat(target.value);
-                if (isNaN(val)) val = 0;
-                
-                if (nodeProp === 'speed') {
-                    if (val < 0) val = 0;
-                    if (val > 100) val = 100;
-                } else if (nodeProp === 'volume') {
-                    if (val < 0) val = 0;
-                    if (val > 1) val = 1;
-                }
-
-                state[listProp][idx][nodeProp] = val;
-                saveState();
-            }
-        });
-
-        // Слушатель ручной вставки/изменения кода в текстовой панели XML
-        const rawXmlArea = document.getElementById('data-raw-xml-textarea');
-        if (rawXmlArea) {
-            rawXmlArea.addEventListener('input', (e) => {
-                // При прямом редактировании XML мы сохраняем его в стейт, чтобы он улетал в экспорт
-                // Для чистоты интеграции, изменения зафиксируются во вкладке Zip
-                renderFileTree();
-            });
-        }
-
-        document.addEventListener('change', (e) => {
-            const target = e.target;
-            if (target.hasAttribute('data-bind-bool')) {
-                const prop = target.getAttribute('data-bind-bool');
-                state[prop] = target.checked;
-                toggleConditionalFields();
-                saveState();
-            }
-        });
-
-        // Переключение превью вкладок в правой панели
-        document.getElementById('tab-btn-tree').addEventListener('click', () => {
-            document.getElementById('tab-content-tree').classList.remove('hidden');
-            document.getElementById('tab-content-xml').classList.add('hidden');
-            document.getElementById('tab-btn-tree').className = 'flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-400 bg-slate-950 font-semibold focus:outline-none transition';
-            document.getElementById('tab-btn-xml').className = 'flex-1 py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none transition';
-        });
-
-        document.getElementById('tab-btn-xml').addEventListener('click', () => {
-            document.getElementById('tab-content-xml').classList.remove('hidden');
-            document.getElementById('tab-content-tree').classList.add('hidden');
-            document.getElementById('tab-btn-xml').className = 'flex-1 py-3 text-center border-b-2 border-blue-500 text-blue-400 bg-slate-950 font-semibold focus:outline-none transition';
-            document.getElementById('tab-btn-tree').className = 'flex-1 py-3 text-center border-b-2 border-transparent text-slate-400 hover:text-slate-300 focus:outline-none transition';
-        });
-
-        // Диспетчеризация кликов по интерактивным кнопкам действий модалок
-        document.addEventListener('click', (e) => {
-            const target = e.target.closest('[data-action]');
-            if (!target) return;
-            const action = target.getAttribute('data-action');
-            const activeKey = state.currentSelectedDataKey;
-
-            if (action === 'reset') {
-                if (confirm('Clear current layout? The state will be restored to default values.')) {
-                    state = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                    window.binaryFilesCache = { thumbJpg: null, seengThumbPng: null, waves: {} };
-                    localStorage.removeItem('seeng_configurator_data_v2');
-                    init();
-                }
+            // Читаем SEENG_INFO.txt если есть
+            if (infoFile) {
+                const text = await infoFile.text();
+                document.getElementById('infoPanelText').textContent = text.trim();
+                document.getElementById('infoPanelContainer').classList.remove('hidden');
             }
 
-            else if (action === 'delete-node') {
-                const listProp = target.getAttribute('data-node-list');
-                const idx = parseInt(target.getAttribute('data-node-index'));
-                state[listProp].splice(idx, 1);
-                renderVolumeNodes(listProp === 'engineVolumes' ? 'engine-volumes-list' : 'engine50-volumes-list', listProp);
-                saveState();
-            }
+            // Парсим XML конфигурации существующего аддона
+            if (configXmlFile) {
+                try {
+                    const xmlText = await configXmlFile.text();
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
-            else if (action === 'toggle-opt') {
-                const prop = target.getAttribute('data-prop');
-                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
-                state.soundsData[activeKey][sndIdx][prop] = !state.soundsData[activeKey][sndIdx][prop];
-                saveState();
-                refreshActiveDataTabWorkspace();
-            }
+                    // Восстанавливаем общие поля
+                    document.getElementById('globalPrefix').value = xmlDoc.getElementsByTagName("Prefix")[0]?.textContent || "MY_ADDON";
+                    document.getElementById('friendlyName').value = xmlDoc.getElementsByTagName("FriendlyName")[0]?.textContent || "My Sound Addon";
+                    document.getElementById('volumeCurvesToggle').checked = xmlDoc.getElementsByTagName("VolumeCurves")[0]?.textContent === "true";
 
-            else if (action === 'add-wave') {
-                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
-                if (state.soundsData[activeKey][sndIdx].waves.length >= 15) {
-                    alert('Maximum threshold of 15 wave files reached for this definition loop.');
-                    return;
-                }
-                state.soundsData[activeKey][sndIdx].waves.push({ name: 'none.wav' });
-                saveState();
-                refreshActiveDataTabWorkspace();
-            }
+                    // Считываем оверрайды параметров
+                    const moduleNodes = xmlDoc.getElementsByTagName("Module");
+                    
+                    // Сначала выключаем все модули, включим только те что найдем в конфиге
+                    appState.modules.forEach(m => m.enabled = false);
 
-            else if (action === 'delete-wave') {
-                const sndIdx = parseInt(target.getAttribute('data-snd-idx'));
-                const waveIdx = parseInt(target.getAttribute('data-wave-idx'));
-                
-                // Удаляем бинарный файл из кэша
-                delete window.binaryFilesCache.waves[`${activeKey}_${sndIdx}_${waveIdx}`];
-                
-                state.soundsData[activeKey][sndIdx].waves.splice(waveIdx, 1);
-                saveState();
-                refreshActiveDataTabWorkspace();
-            }
-
-            else if (action === 'export') {
-                if (!state.addonPrefix.trim()) {
-                    alert('Please enter a valid Addon Prefix first.');
-                    return;
-                }
-                exportAddonPackage();
-            }
-        });
-
-        document.getElementById('add-volume-node').addEventListener('click', () => {
-            state.engineVolumes.push({ speed: 50, volume: 0.5 });
-            renderVolumeNodes('engine-volumes-list', 'engineVolumes');
-            saveState();
-        });
-
-        document.getElementById('add-volume50-node').addEventListener('click', () => {
-            state.engine50Volumes.push({ speed: 50, volume: 0.5 });
-            renderVolumeNodes('engine50-volumes-list', 'engine50Volumes');
-            saveState();
-        });
-
-        // СБОРКА И ЭКСПОРТ ZIP-АРХИВА С БИНАРНЫМИ ФАЙЛАМИ КЛИЕНТА
-        function exportAddonPackage() {
-            const files = [];
-            const folderPrefix = state.addonPrefix.trim() + '/';
-            const encoder = new TextEncoder();
-
-            // Создание дефолтной бинарной заглушки 1х1 пиксель (PNG)
-            const base64Png = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
-            const fallbackImgBytes = Uint8Array.from(atob(base64Png), c => c.charCodeAt(0));
-
-            function pushFile(path, contents, isBinary = false) {
-                files.push({
-                    name: folderPrefix + path,
-                    data: isBinary ? contents : encoder.encode(contents)
-                });
-            }
-
-            // Добавляем основные конфигурационные файлы
-            pushFile('SEENG_Config.sbc', generateSbcXml());
-            pushFile('SEENG_desc.txt', state.descShort);
-            pushFile('SEENG_descBIG.txt', state.descLong);
-
-            // Обложки: берем либо загруженный файл из кэша, либо заглушку
-            const finalThumbBytes = window.binaryFilesCache.thumbJpg || fallbackImgBytes;
-            const finalSeengBytes = window.binaryFilesCache.seengThumbPng || fallbackImgBytes;
-            pushFile('thumb.jpg', finalThumbBytes, true);
-            pushFile('SEENG_thumb.png', finalSeengBytes, true);
-
-            if (state.useTransmission) {
-                pushFile('SEENG_TransmissionConfig.sbc', state.transmissionSbc);
-            }
-
-            // Генерация и упаковка файлов SBC для папки Data
-            DATA_SBC_FILES_CONFIG.forEach(cfg => {
-                if (state[cfg.key]) {
-                    let xmlContent = '';
-                    // Если пользователь редактирует активный таб напрямую из текстового поля, берем контент оттуда
-                    if (state.currentSelectedDataKey === cfg.key) {
-                        xmlContent = document.getElementById('data-raw-xml-textarea').value;
-                    } else {
-                        xmlContent = serializeSoundsToXml(cfg.key);
-                    }
-                    pushFile(`Data/${cfg.filename}`, xmlContent);
-                }
-            });
-
-            // Добавление структуры папок аудио и реальных звуковых файлов .wav
-            const rootAudioFolder = `AUDIO_SEENG_${state.addonPrefix}/`;
-            
-            // Базовые файлы описания для пустых папок
-            pushFile(`${rootAudioFolder}Engine_SEENG/readme.txt`, "Engine audio tracks slot");
-            pushFile(`${rootAudioFolder}Ambience_SEENG/readme.txt`, "Ambience audio tracks slot");
-            pushFile(`${rootAudioFolder}Thrusters_SEENG/readme.txt`, "Thrusters audio resources slot");
-            pushFile(`${rootAudioFolder}Maneuver_SEENG/readme.txt`, "Maneuver sound files slot");
-            pushFile(`${rootAudioFolder}ShipSystems_SEENG/readme.txt`, "Cockpit & general systems sounds slot");
-
-            // Сканируем все структуры и пакуем реальные .wav, сохраненные в оперативном кэше
-            DATA_SBC_FILES_CONFIG.forEach(cfg => {
-                const sounds = state.soundsData[cfg.key] || [];
-                sounds.forEach((snd, sndIdx) => {
-                    snd.waves.forEach((w, waveIdx) => {
-                        const cacheKey = `${cfg.key}_${sndIdx}_${waveIdx}`;
-                        const cachedData = window.binaryFilesCache.waves[cacheKey];
-                        // Если файл был загружен с ПК, пушим его реальное тело в архив
-                        if (cachedData && w.name !== 'none.wav') {
-                            pushFile(`${rootAudioFolder}${cfg.folder}/${w.name}`, cachedData, true);
+                    for (let mNode of moduleNodes) {
+                        const filename = mNode.getAttribute("Filename");
+                        const targetModule = appState.modules.find(m => m.filename === filename);
+                        
+                        if (targetModule) {
+                            targetModule.enabled = true;
+                            const soundNodes = mNode.getElementsByTagName("Sound");
+                            for (let sNode of soundNodes) {
+                                const subId = sNode.getAttribute("SubtypeId");
+                                const vol = sNode.getElementsByTagName("Volume")[0]?.textContent;
+                                const dist = sNode.getElementsByTagName("MaxDistance")[0]?.textContent;
+                                
+                                const targetSound = targetModule.sounds.find(s => s.subtypeId === subId);
+                                if (targetSound) {
+                                    if (vol !== undefined) targetSound.customVolume = vol;
+                                    if (dist !== undefined) targetSound.customMaxDistance = dist;
+                                }
+                            }
                         }
-                    });
-                });
-            });
-
-            // Бинарный алгоритм CRC32 и упаковщик ZIP структур
-            function crc32(array) {
-                let table = [];
-                for (let i = 0; i < 256; i++) {
-                    let c = i;
-                    for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-                    table[i] = c;
+                    }
+                    alert("Конфигурация существующего аддона успешно импортирована!");
+                } catch (e) {
+                    alert("Ошибка чтения файла конфигурации импортируемого аддона.");
+                    console.error(e);
                 }
-                let crc = 0 ^ (-1);
-                for (let i = 0; i < array.length; i++) {
-                    crc = (crc >>> 8) ^ table[(crc ^ array[i]) & 0xFF];
-                }
-                return (crc ^ (-1)) >>> 0;
+            } else {
+                alert("Папка успешно просканирована, файл конфигурации addon_config.xml не обнаружен (использованы дефолтные параметры).");
             }
 
-            let zipParts = [];
-            let centralDir = [];
+            renderModules();
+            updateLiveXml();
+        }
+
+        // Встроенный легковесный Vanilla ZIP генератор (по куску кода из репозитория)
+        function crc32(uint8arr) {
+            let table = [];
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let j = 0; j < 8; j++) {
+                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                table[i] = c;
+            }
+            let crc = 0 ^ (-1);
+            for (let i = 0; i < uint8arr.length; i++) {
+                crc = (crc >>> 8) ^ table[(crc ^ uint8arr[i]) & 0xFF];
+            }
+            return (crc ^ (-1)) >>> 0;
+        }
+
+        function exportAddonZip() {
+            const filesToPack = [
+                { name: 'addon_config.xml', content: generateAddonXml() }
+            ];
+
+            const zipParts = [];
+            const centralDir = [];
             let offset = 0;
 
-            files.forEach(file => {
-                const filenameBytes = encoder.encode(file.name);
-                const fileCrc = crc32(file.data);
-                const size = file.data.length;
+            filesToPack.forEach(file => {
+                const filenameBytes = new TextEncoder().encode(file.name);
+                const contentBytes = new TextEncoder().encode(file.content);
+                const size = contentBytes.length;
+                const fileCrc = crc32(contentBytes);
 
+                // Local File Header
                 const lfh = new Uint8Array(30 + filenameBytes.length);
                 lfh.set([0x50, 0x4B, 0x03, 0x04, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0);
                 new DataView(lfh.buffer).setUint32(14, fileCrc, true);
@@ -1162,8 +469,9 @@
                 lfh.set(filenameBytes, 30);
 
                 zipParts.push(lfh);
-                zipParts.push(file.data);
+                zipParts.push(contentBytes);
 
+                // Central Directory Record
                 const cdr = new Uint8Array(46 + filenameBytes.length);
                 cdr.set([0x50, 0x4B, 0x01, 0x02, 20, 0, 10, 0, 0, 0, 0, 0, 0, 0], 0);
                 new DataView(cdr.buffer).setUint32(16, fileCrc, true);
@@ -1179,23 +487,22 @@
 
             const centralDirSize = centralDir.reduce((acc, curr) => acc + curr.length, 0);
 
+            // End of Central Directory
             const eocd = new Uint8Array(22);
             eocd.set([0x50, 0x4B, 0x05, 0x06, 0, 0, 0, 0], 0);
-            new DataView(eocd.buffer).setUint16(8, files.length, true);
-            new DataView(eocd.buffer).setUint16(10, files.length, true);
+            new DataView(eocd.buffer).setUint16(8, filesToPack.length, true);
+            new DataView(eocd.buffer).setUint16(10, filesToPack.length, true);
             new DataView(eocd.buffer).setUint32(12, centralDirSize, true);
             new DataView(eocd.buffer).setUint32(16, offset, true);
 
             const blob = new Blob([...zipParts, ...centralDir, eocd], { type: 'application/zip' });
             
+            const prefix = document.getElementById('globalPrefix').value.trim() || "addon";
             const dlLink = document.createElement('a');
             dlLink.href = URL.createObjectURL(blob);
-            dlLink.download = `${state.addonPrefix.trim() || 'seeng_addon'}.zip`;
+            dlLink.download = `${prefix}_configuration.zip`;
             dlLink.click();
-            URL.revokeObjectURL(dlLink.href);
         }
-
-        init();
     </script>
 </body>
 </html>
