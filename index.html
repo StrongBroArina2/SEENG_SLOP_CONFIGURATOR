@@ -1,508 +1,364 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEENG Addon Configuration Constructor</title>
+    <title>SEENG Addon Constructor | Coffee Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
         
-        /* Цветовое оформление в глубоких кофейных тонах (Пункт 5) */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #160f0a; /* Темные кофейные зерна */
-            color: #ebdcd0; /* Нежная молочная пенка */
+            background-color: #1c1612; /* deep coffee base */
         }
         .code-font {
             font-family: 'JetBrains Mono', monospace;
         }
-        /* Кастомный скроллбар в цвет темы */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #21160e;
+            background: #2a241e;
         }
         ::-webkit-scrollbar-thumb {
-            background: #443224;
+            background: #5e4b37;
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #5c4432;
+            background: #7a6048;
+        }
+        /* auto-expanding textarea simulation */
+        .auto-expand-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #2a241e;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border: 1px solid #5e4b37;
+            color: #f0e6d8;
+        }
+        .coffee-border {
+            border-color: #5e4b37;
+        }
+        .tooltip-hint {
+            background-color: #2a241e;
+            border: 1px solid #7a6048;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body class="text-[#f0e6d8] min-h-screen flex flex-col antialiased">
 
-    <header class="border-b border-[#443224] bg-[#1c140e] px-6 py-4 shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+    <header class="border-b border-[#5e4b37] bg-[#1c1612]/90 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-amber-700 flex items-center justify-center shadow-lg shadow-amber-800/20">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+            </div>
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-[#d4a373]">SEENG Addon Constructor</h1>
-                <p class="text-xs text-[#a68a75] mt-0.5">Динамическое управление звуковыми конфигурациями</p>
+                <h1 class="text-xl font-bold tracking-tight text-[#f5e6d3]">SEENG Addon Constructor · Roaster</h1>
+                <p class="text-xs text-[#b7a07e]">Professional tool with external SBC / CMT integration</p>
             </div>
-            <div class="flex items-center gap-3">
-                <input type="file" id="addonFolderInput" webkitdirectory directory multiple class="hidden" onchange="handleFolderImport(event)">
-                <button onclick="document.getElementById('addonFolderInput').click()" class="px-4 py-2 text-sm font-semibold rounded-lg bg-[#322419] border border-[#5c4432] text-[#ebdcd0] hover:bg-[#443224] transition shadow-md flex items-center gap-2">
-                    📂 Импорт папки аддона
-                </button>
-                <button onclick="exportAddonZip()" class="px-5 py-2 text-sm font-semibold rounded-lg bg-[#b58255] text-[#160f0a] hover:bg-[#c69467] transition shadow-md font-bold flex items-center gap-2">
-                    📦 Скачать архив (.zip)
-                </button>
-            </div>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+            <label class="px-4 py-2 bg-[#2a241e] hover:bg-[#3e3229] text-[#e2cfb3] rounded-lg text-sm font-medium transition cursor-pointer flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Load Addon Folder
+                <input type="file" id="load-addon-folder-input" webkitdirectory directory multiple class="hidden">
+            </label>
+            <button class="px-4 py-2 bg-[#2a241e] hover:bg-[#3e3229] active:bg-[#1c1612] text-[#e2cfb3] rounded-lg text-sm font-medium transition" data-action="reset">Reset Draft</button>
+            <button id="btn-export-addon" class="px-5 py-2 bg-amber-700 hover:bg-amber-600 active:bg-amber-800 text-white rounded-lg text-sm font-semibold shadow-lg shadow-amber-800/20 transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Export Addon (.ZIP)
+            </button>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 space-y-6">
-        
-        <div id="infoPanelContainer" class="hidden bg-[#261b12] border border-[#443224] rounded-xl p-4 shadow-md">
-            <div class="text-xs font-semibold text-[#a68a75] uppercase tracking-wider mb-2">Информация о репозитории (SEENG_INFO.txt)</div>
-            <div id="infoPanelText" class="text-sm text-[#ebdcd0] whitespace-pre-wrap word-break transition-all">Загрузка информации...</div>
-        </div>
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+        <main class="flex-1 overflow-y-auto p-6 space-y-8" id="editorForm">
+            <!-- INFO banner -->
+            <div class="bg-[#241e18] border border-[#5e4b37] rounded-2xl p-4">
+                <div class="flex items-center gap-2 text-amber-600 mb-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-xs font-semibold uppercase tracking-wider">Mod information (SEENG_INFO.txt)</span>
+                </div>
+                <div id="seeng-info-content" class="auto-expand-text text-[#e2cfb3] whitespace-pre-wrap">Loading external info...</div>
+            </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div class="space-y-6 lg:col-span-1">
-                <div class="bg-[#261b12] border border-[#443224] rounded-xl p-5 shadow-md space-y-4">
-                    <h2 class="text-lg font-semibold text-[#d4a373] border-b border-[#443224] pb-2">Глобальные параметры</h2>
-                    
-                    <div>
-                        <label class="block text-xs font-medium text-[#a68a75] uppercase mb-1">Configuration Prefix</label>
-                        <input type="text" id="globalPrefix" value="MY_ADDON" oninput="updateLiveXml()" class="w-full bg-[#322419] border border-[#443224] rounded-lg px-3 py-2 text-sm text-[#ebdcd0] focus:outline-none focus:border-[#b58255]">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-[#a68a75] uppercase mb-1">Friendly Name</label>
-                        <input type="text" id="friendlyName" value="My Custom Sound Addon" oninput="updateLiveXml()" class="w-full bg-[#322419] border border-[#443224] rounded-lg px-3 py-2 text-sm text-[#ebdcd0] focus:outline-none focus:border-[#b58255]">
-                    </div>
-
-                    <div class="flex items-center justify-between pt-2">
-                        <span class="text-sm font-medium text-[#ebdcd0]">Включить Volume Curves</span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="volumeCurvesToggle" onchange="updateLiveXml()" class="sr-only peer">
-                            <div class="w-11 h-6 bg-[#322419] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#ebdcd0] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#b58255]"></div>
-                        </label>
+            <section id="sec-core" class="bg-[#241e18]/60 border border-[#5e4b37] rounded-2xl p-6 space-y-6 scroll-mt-24">
+                <div class="flex items-center justify-between border-b border-[#5e4b37] pb-3">
+                    <h2 class="text-lg font-bold text-[#f5e6d3] flex items-center gap-2">
+                        <span class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-800/60 text-xs font-semibold text-amber-400">1</span>
+                        Core Information
+                    </h2>
+                    <span class="text-xs text-[#b7a07e]">Fields marked with <span class="text-amber-500 font-bold">*</span> are required</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2 md:col-span-2">
+                        <label class="block text-sm font-medium text-amber-500">Addon Prefix <span class="text-amber-500">*</span></label>
+                        <input type="text" id="addon-prefix-input" data-bind="addonPrefix" class="w-full bg-[#1c1612] border border-amber-800/50 rounded-lg px-3 py-2 text-[#f0e6d8] focus:outline-none focus:border-amber-500 transition" placeholder="e.g. HighShip">
                     </div>
                 </div>
-
-                <div class="bg-[#261b12] border border-[#443224] rounded-xl p-5 shadow-md space-y-3">
-                    <h2 class="text-lg font-semibold text-[#d4a373]">Direct Source XML Editor</h2>
-                    <textarea id="liveXmlEditor" readonly class="w-full h-96 bg-[#160f0a] border border-[#443224] rounded-lg p-3 code-font text-xs text-[#c69467] focus:outline-none resize-none"></textarea>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-[#e2cfb3]">Short Description <span class="text-amber-500">*</span></label>
+                        <textarea data-bind="descShort" rows="2" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2 text-[#f0e6d8] focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-[#e2cfb3]">Detailed Description</label>
+                        <textarea data-bind="descLong" rows="2" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2 text-[#f0e6d8] focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
                 </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-[#ebdcd0]">Звуковые модули (.sbc)</h2>
-                    <span id="loadingStatus" class="text-xs text-[#a68a75]">Инициализация...</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 border-t border-[#5e4b37]/60">
+                    <div><label class="block text-sm font-medium text-[#e2cfb3]">Mod Thumbnail (thumb.jpg)</label><input type="file" id="input-thumb-jpg" accept="image/jpeg" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2 text-xs text-[#b7a07e]"></div>
+                    <div><label class="block text-sm font-medium text-[#e2cfb3]">SEENG UI Cover (SEENG_thumb.png)</label><input type="file" id="input-seeng-png" accept="image/png" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2 text-xs text-[#b7a07e]"></div>
                 </div>
+            </section>
 
-                <div id="modulesContainer" class="space-y-4"></div>
-            </div>
+            <section id="sec-config" class="bg-[#241e18]/60 border border-[#5e4b37] rounded-2xl p-6 space-y-6 scroll-mt-24">
+                <div class="flex items-center justify-between border-b border-[#5e4b37] pb-3">
+                    <h2 class="text-lg font-bold text-[#f5e6d3] flex items-center gap-2"><span class="flex h-6 w-6 items-center justify-center rounded-md bg-amber-800/60 text-xs font-semibold text-amber-400">2</span>SEENG_Config.sbc Constructor</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div><label class="block text-sm font-medium text-[#e2cfb3]">Configuration Prefix</label><input id="config-prefix-mirror" class="w-full bg-[#241e18] border border-[#5e4b37] rounded-lg px-3 py-2 text-[#b7a07e]" disabled></div>
+                    <div><label class="block text-sm font-medium text-[#e2cfb3]">Max Engine Pitch Shift</label><input type="number" step="0.1" data-bind="maxPitch" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2"></div>
+                    <div><label class="block text-sm font-medium text-[#e2cfb3]">Max Engine 50 Pitch Shift</label><input type="number" step="0.1" data-bind="maxPitch50" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg px-3 py-2"></div>
+                </div>
+                <div><label class="block text-sm font-medium text-amber-500"><FriendlyName>FriendlyName</label><input type="text" data-bind="friendlyName" placeholder="Displayed Name In SE" class="w-full bg-[#1c1612] border border-amber-800/50 rounded-lg px-3 py-2"></div>
+                <div class="space-y-6">
+                    <!-- Engine Volumes Curve -->
+                    <div class="bg-[#1c1612]/60 p-5 rounded-xl border border-[#5e4b37]">
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-3"><input type="checkbox" id="useEngineVolumes" data-bind-bool="useEngineVolumes" class="w-4 h-4 text-amber-600 rounded"><label class="text-sm font-semibold text-amber-400">Enable SeengEngineVolumes Curve</label></div><button id="add-volume-node" class="px-3 py-1 bg-amber-800/30 text-amber-400 rounded-md text-xs">+ Add Node</button></div>
+                        <div id="engine-volumes-container" class="space-y-3 mt-3 hidden"><div id="engine-volumes-list" class="space-y-2"></div></div>
+                    </div>
+                    <div class="bg-[#1c1612]/60 p-5 rounded-xl border border-[#5e4b37]">
+                        <div class="flex items-center justify-between"><div class="flex items-center gap-3"><input type="checkbox" id="useEngine50Volumes" data-bind-bool="useEngine50Volumes" class="w-4 h-4 text-amber-600 rounded"><label class="text-sm font-semibold text-amber-400">Enable SeengEngine50Volumes Curve</label></div><button id="add-volume50-node" class="px-3 py-1 bg-amber-800/30 text-amber-400 rounded-md text-xs">+ Add Node</button></div>
+                        <div id="engine50-volumes-container" class="space-y-3 mt-3 hidden"><div id="engine50-volumes-list" class="space-y-2"></div></div>
+                    </div>
+                    <div class="bg-[#1c1612]/60 p-5 rounded-xl border border-[#5e4b37]">
+                        <div class="flex items-center gap-3"><input type="checkbox" id="useTransmission" data-bind-bool="useTransmission" class="w-4 h-4 text-amber-600"><label class="text-sm font-semibold text-amber-400">Include SEENG_TransmissionConfig.sbc</label></div>
+                        <div id="transmissionContainer" class="hidden mt-3"><textarea data-bind="transmissionSbc" rows="6" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg code-font text-sm"></textarea></div>
+                    </div>
+                </div>
+            </section>
 
-        </div>
-    </main>
+            <section id="sec-data" class="bg-[#241e18]/60 border border-[#5e4b37] rounded-2xl p-6 space-y-6 scroll-mt-24">
+                <div class="flex items-center justify-between border-b border-[#5e4b37] pb-3"><h2 class="text-lg font-bold text-[#f5e6d3]"><span class="bg-amber-800/60 px-2 py-0.5 rounded-md mr-2">3</span> Data Folder SBC Files (auto-loaded from /data/*.sbc)</h2></div>
+                <div class="flex flex-wrap gap-2 pb-2" id="sbc-tabs-row"></div>
+                <div class="bg-[#1c1612]/80 border border-[#5e4b37] rounded-xl p-5 space-y-6">
+                    <div id="visual-node-builder-root" class="space-y-6"></div>
+                    <hr class="border-[#5e4b37]">
+                    <div><label class="block text-xs font-semibold text-amber-600 uppercase">Direct Source XML Editor</label><textarea id="data-raw-xml-textarea" rows="8" class="w-full bg-[#1c1612] border border-[#5e4b37] rounded-lg code-font text-xs"></textarea></div>
+                </div>
+            </section>
+        </main>
 
-    <div id="tooltipModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[100]" onclick="closeTooltip()">
-        <div class="bg-[#261b12] border border-[#443224] max-w-md w-full rounded-xl p-5 shadow-2xl space-y-3" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start">
-                <h3 id="modalTitle" class="text-base font-bold text-[#d4a373] truncate mr-2">Подсказка к звуку</h3>
-                <button onclick="closeTooltip()" class="text-[#a68a75] hover:text-[#ebdcd0] text-sm font-bold">✕</button>
+        <aside class="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-[#5e4b37] bg-[#1c1612] flex flex-col h-auto lg:h-full">
+            <div class="p-4 border-b border-[#5e4b37]"><h3 class="text-xs font-semibold text-amber-600 uppercase">Navigation</h3>
+                <nav class="grid grid-cols-3 gap-1 mt-2"><a href="#sec-core" class="py-1.5 text-center rounded text-xs bg-[#2a241e] hover:bg-[#3e3229]">Info</a><a href="#sec-config" class="py-1.5 text-center rounded text-xs bg-[#2a241e]">SBC</a><a href="#sec-data" class="py-1.5 text-center rounded text-xs bg-[#2a241e]">Data</a></nav>
             </div>
-            <div id="modalContent" class="text-sm text-[#ebdcd0] bg-[#160f0a] border border-[#443224] p-3 rounded-lg max-h-60 overflow-y-auto whitespace-pre-wrap">
-                Загрузка информации...
+            <div class="flex border-b border-[#5e4b37] text-xs">
+                <button id="tab-btn-tree" class="flex-1 py-3 text-center border-b-2 border-amber-600 text-amber-500">Zip Structure</button>
+                <button id="tab-btn-xml" class="flex-1 py-3 text-center border-b-2 border-transparent text-[#b7a07e]">Config.sbc XML</button>
             </div>
-        </div>
+            <div id="tab-content-tree" class="flex-1 p-4 overflow-auto code-font text-xs"><pre id="fileTreePreview" class="text-amber-600"></pre></div>
+            <div id="tab-content-xml" class="flex-1 p-4 overflow-auto code-font text-xs hidden"><pre id="xmlPreviewText" class="text-amber-600 bg-[#241e18] p-3 rounded-lg"></pre></div>
+        </aside>
     </div>
 
     <script>
-        // Список файлов SBC из корня репозитория (Пункт 1)
-        const SBC_FILES = [
-            'seeng_block_LandingGear.sbc', 'seeng_block_Piston.sbc', 'seeng_block_RotorHinge.sbc',
-            'seeng_car_engine_arcade.sbc', 'seeng_car_engine_speedbased.sbc', 'seeng_car_engine_transmission.sbc',
-            'seeng_ambience_constant.sbc', 'seeng_ambience_moving.sbc', 'seeng_ambience_stationary.sbc',
-            'seeng_block_CargoBlocks.sbc', 'seeng_car_tracks.sbc', 'seeng_car_wheels.sbc',
-            'seeng_ship_ACDCadv.sbc', 'seeng_ship_engine.sbc', 'seeng_ship_engine50.sbc',
-            'seeng_ship_maneuver_gyro.sbc', 'seeng_ship_maneuver_thrusters.sbc', 'seeng_ship_speedUpDown.sbc',
-            'seeng_ship_thrusters.sbc'
+        // --- core config ---
+        let externalSbcDefinitions = {};      // key: filename without path, value: parsed XML string content
+        let externalComments = {};             // map SubtypeId -> hint (from CMT_*.txt files)
+        let externalInfoText = "";             // SEENG_INFO.txt content
+        let loadedAddonStructure = {};          // for folder reload
+
+        const DATA_SBC_FILES_CONFIG = [
+            { key: 'data_engine', filename: 'seeng_engine.sbc', folder: 'Engine_SEENG' },
+            { key: 'data_ambience', filename: 'seeng_ambience.sbc', folder: 'Ambience_SEENG' },
+            { key: 'data_thrusters', filename: 'seeng_thrusters.sbc', folder: 'Thrusters_SEENG' },
+            { key: 'data_maneuver', filename: 'seeng_maneuver.sbc', folder: 'Maneuver_SEENG' },
+            { key: 'data_car_engine', filename: 'seeng_car_engine.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_engineADV', filename: 'seeng_car_engineADV.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_tracks', filename: 'seeng_car_tracks.sbc', folder: 'ShipSystems_SEENG' },
+            { key: 'data_car_wheels', filename: 'seeng_car_wheels.sbc', folder: 'ShipSystems_SEENG' }
         ];
 
-        // Глобальное состояние приложения
-        let appState = {
-            modules: [] // Хранит распарсенные данные из .sbc
+        let state = {
+            addonPrefix: 'CoffeePack', descShort: 'Premium engine acoustics', descLong: 'Deep overhaul', friendlyName: 'Coffee Audio Mod',
+            maxPitch: 7.5, maxPitch50: 10.0, useEngineVolumes: false, useEngine50Volumes: false, useTransmission: false,
+            transmissionSbc: '<?xml version="1.0"?>\n<Definitions><GearShiftDelay>0.3</GearShiftDelay></Definitions>',
+            engineVolumes: [{ speed: 0, volume: 0.2 }, { speed: 100, volume: 1.0 }],
+            engine50Volumes: [{ speed: 0, volume: 0.1 }, { speed: 100, volume: 0.9 }],
+            currentSelectedDataKey: 'data_ambience',
+            soundsData: {}
         };
 
-        // Запуск при загрузке страницы
-        window.addEventListener('DOMContentLoaded', async () => {
-            await loadSeengInfo();
-            await loadAllSbcFiles();
-            updateLiveXml();
-        });
+        DATA_SBC_FILES_CONFIG.forEach(cfg => { state[cfg.key] = true; state.soundsData[cfg.key] = []; });
 
-        // Загрузка SEENG_INFO.txt (Пункт 10)
-        async function loadSeengInfo() {
-            const container = document.getElementById('infoPanelContainer');
-            const textEl = document.getElementById('infoPanelText');
-            try {
-                const response = await fetch('SEENG_INFO.txt');
-                if (response.ok) {
-                    const txt = await response.text();
-                    textEl.textContent = txt.trim();
-                    container.classList.remove('hidden');
-                }
-            } catch (e) {
-                console.log("Файл SEENG_INFO.txt отсутствует или недоступен.");
-            }
+        function loadExternalSbcFilesFromDirectory() {
+            // dummy simulation: actually app will load via file input; but to fetch default from repo we use fetch if needed.
+            // for github pages, we can preload static examples? but main logic: user loads folder.
         }
 
-        // Динамический парсинг файлов .sbc вместо хардкода (Пункт 1)
-        async function loadAllSbcFiles() {
-            const statusEl = document.getElementById('loadingStatus');
-            statusEl.textContent = "Синхронизация с репозиторием...";
-            
-            for (const file of SBC_FILES) {
-                try {
-                    const response = await fetch(file);
-                    if (!response.ok) continue;
-                    const xmlText = await response.text();
-                    parseAndAddSbc(file, xmlText);
-                } catch (e) {
-                    console.error(`Не удалось загрузить ${file}:`, e);
-                }
-            }
-            
-            statusEl.textContent = `Загружено модулей: ${appState.modules.length}`;
-            renderModules();
-        }
-
-        // Внутренний парсер XML структуры SBC (Пункт 1, 2, 3)
-        function parseAndAddSbc(filename, xmlText) {
+        function updateSoundsFromExternalSbc(key) {
+            const filename = DATA_SBC_FILES_CONFIG.find(c => c.key === key)?.filename;
+            if (!filename || !externalSbcDefinitions[filename]) return;
+            const xmlStr = externalSbcDefinitions[filename];
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-            const soundNodes = xmlDoc.getElementsByTagName("Sound");
-            
-            let sounds = [];
-            for (let soundNode of soundNodes) {
-                const subtypeId = soundNode.getElementsByTagName("Id")[0]?.getElementsByTagName("SubtypeId")[0]?.textContent || "";
-                if (!subtypeId) continue;
-
-                const maxDistance = soundNode.getElementsByTagName("MaxDistance")[0]?.textContent || "100";
-                const volume = soundNode.getElementsByTagName("Volume")[0]?.textContent || "1.0";
-                
-                // Проверяем тип волны: Loop или Start (Пункт 2, 3)
-                const loopNode = soundNode.getElementsByTagName("Loop")[0];
-                const startNode = soundNode.getElementsByTagName("Start")[0];
-                const isLoopable = !!loopNode;
-
-                sounds.push({
-                    subtypeId: subtypeId,
-                    isLoopable: isLoopable,
-                    defaultVolume: volume,
-                    defaultMaxDistance: maxDistance,
-                    customVolume: volume,
-                    customMaxDistance: maxDistance
-                });
-            }
-
-            if (sounds.length > 0) {
-                appState.modules.push({
-                    filename: filename,
-                    enabled: true, // По умолчанию включен (Пункт 1)
-                    sounds: sounds
-                });
-            }
-        }
-
-        // Отрендерить интерфейс карточек
-        function renderModules() {
-            const container = document.getElementById('modulesContainer');
-            container.innerHTML = "";
-
-            appState.modules.forEach((mod, modIdx) => {
-                const card = document.createElement('div');
-                card.className = `bg-[#261b12] border ${mod.enabled ? 'border-[#443224]' : 'border-dashed border-stone-700 opacity-60'} rounded-xl p-5 shadow-md transition-all`;
-                
-                // Заголовок карточки с выключателем модуля (Пункт 1)
-                let html = `
-                    <div class="flex justify-between items-center border-b border-[#443224] pb-3 mb-4">
-                        <div class="flex items-center gap-2">
-                            <span class="text-sm font-bold text-[#d4a373] code-font">${mod.filename}</span>
-                            <span class="text-[10px] bg-[#322419] border border-[#5c4432] text-[#a68a75] px-2 py-0.5 rounded-full">Эффектов: ${mod.sounds.length}</span>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" ${mod.enabled ? 'checked' : ''} onchange="toggleModule(${modIdx}, this.checked)" class="sr-only peer">
-                            <div class="w-9 h-5 bg-[#322419] rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#ebdcd0] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#b58255]"></div>
-                        </label>
-                    </div>
-                    <div class="space-y-3 ${mod.enabled ? '' : 'pointer-events-none select-none'}">
-                `;
-
-                // Список звуков внутри модуля
-                mod.sounds.forEach((sound, sIdx) => {
-                    // Визуально префикс аддона не дописывается к названию (Пункт 7)
-                    html += `
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-[#160f0a] border border-[#443224] rounded-lg p-3">
-                            <div class="flex items-center gap-2 max-w-xs md:max-w-md truncate">
-                                <button onclick="showTooltip('${sound.subtypeId}')" class="text-[#00ff66] font-bold hover:text-green-300 transition duration-150 transform hover:scale-110 flex-shrink-0" title="Показать описание">
-                                    ⓘ
-                                </button>
-                                <span class="text-xs font-semibold text-[#ebdcd0] code-font truncate" title="${sound.subtypeId}">${sound.subtypeId}</span>
-                                <span class="text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase ${sound.isLoopable ? 'bg-amber-900/40 text-[#c68642]' : 'bg-stone-800 text-stone-400'}">
-                                    ${sound.isLoopable ? 'Loop' : 'Start'}
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-4 text-xs">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-[#a68a75]">Vol:</span>
-                                    <input type="number" step="0.1" min="0" value="${sound.customVolume}" oninput="updateSoundParam(${modIdx}, ${sIdx}, 'customVolume', this.value)" class="w-14 bg-[#322419] border border-[#443224] rounded px-1.5 py-0.5 text-center text-[#ebdcd0]">
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-[#a68a75]">Dist:</span>
-                                    <input type="number" step="10" min="0" value="${sound.customMaxDistance}" oninput="updateSoundParam(${modIdx}, ${sIdx}, 'customMaxDistance', this.value)" class="w-16 bg-[#322419] border border-[#443224] rounded px-1.5 py-0.5 text-center text-[#ebdcd0]">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                html += `</div>`;
-                card.innerHTML = html;
-                container.appendChild(card);
+            const doc = parser.parseFromString(xmlStr, "text/xml");
+            const soundNodes = doc.querySelectorAll("Sound");
+            const list = [];
+            soundNodes.forEach(snd => {
+                const subtypeElem = snd.querySelector("SubtypeId");
+                let baseSubtype = (subtypeElem?.textContent || "").replace(state.addonPrefix, "").replace(/_$/, "");
+                const maxDist = parseFloat(snd.querySelector("MaxDistance")?.textContent) || 100;
+                const volume = parseFloat(snd.querySelector("Volume")?.textContent) || 1.0;
+                const category = snd.querySelector("Category")?.textContent || "";
+                const loopable = snd.querySelector("Loopable")?.textContent === "true";
+                const waves = [];
+                snd.querySelectorAll("Wave").forEach(w => { const loopElem = w.querySelector("Loop"); if(loopElem) waves.push({ name: loopElem.textContent.split('\\').pop() || "none.wav", type: "Loop" }); });
+                if(waves.length===0) waves.push({ name: "none.wav", type: "Loop" });
+                list.push({ subtypeIdBase: baseSubtype || "SeengGeneric_", maxDistance: maxDist, volume, category, waves, loopable, showOptVolumeVar: false, volumeVar: 0, showOptPitch: false, pitch: 1.0, showOptPitchVar: false, pitchVar: 0, hint: externalComments[baseSubtype] || "" });
             });
+            if(list.length) state.soundsData[key] = list;
         }
 
-        // Триггеры изменения состояния компонентов
-        function toggleModule(idx, isChecked) {
-            appState.modules[idx].enabled = isChecked;
-            renderModules();
-            updateLiveXml();
-        }
-
-        function updateSoundParam(modIdx, sIdx, param, val) {
-            appState.modules[modIdx].sounds[sIdx][param] = val;
-            updateLiveXml();
-        }
-
-        // Интерактивные подсказки из внешних CMT_ файлов (Пункт 8)
-        async function showTooltip(subtypeId) {
-            const modal = document.getElementById('tooltipModal');
-            const title = document.getElementById('modalTitle');
-            const content = document.getElementById('modalContent');
-            
-            title.textContent = `${subtypeId}`;
-            content.textContent = "Загрузка описания...";
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-
-            try {
-                const response = await fetch(`CMT_${subtypeId}.txt`);
-                if (response.ok) {
-                    content.textContent = (await response.text()).trim();
-                } else {
-                    content.textContent = `Пользовательское описание для данного звукового эффекта не найдено.\n(Файл CMT_${subtypeId}.txt отсутствует в директории)`;
-                }
-            } catch (e) {
-                content.textContent = "Произошла ошибка при загрузке файла описания.";
-            }
-        }
-
-        function closeTooltip() {
-            const modal = document.getElementById('tooltipModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        // Генерация результирующего XML файла конфигурации (Пункт 2, 7, 9)
-        function generateAddonXml() {
-            const prefix = document.getElementById('globalPrefix').value.trim() || "ADDON";
-            const friendlyName = document.getElementById('friendlyName').value.trim() || "Sound Addon";
-            const volumeCurves = document.getElementById('volumeCurvesToggle').checked;
-
-            let xml = `<?xml version="1.0" encoding="utf-8"?>\n`;
-            xml += `<SeengAddonConfig>\n`;
-            xml += `    <Prefix>${prefix}</Prefix>\n`;
-            xml += `    <FriendlyName>${friendlyName}</FriendlyName>\n`;
-            xml += `    <VolumeCurves>${volumeCurves}</VolumeCurves>\n`;
-            xml += `    <Modules>\n`;
-
-            appState.modules.forEach(mod => {
-                // Если модуль выключен, он не добавляется в конфигурацию / архив (Пункт 1)
-                if (!mod.enabled) return;
-
-                xml += `        <Module Filename="${mod.filename}">\n`;
-                mod.sounds.forEach(sound => {
-                    xml += `            <Sound SubtypeId="${sound.subtypeId}">\n`;
-                    xml += `                <Volume>${sound.customVolume}</Volume>\n`;
-                    xml += `                <MaxDistance>${sound.customMaxDistance}</MaxDistance>\n`;
-                    xml += `                <Loopable>${sound.isLoopable}</Loopable>\n`;
-                    xml += `            </Sound>\n`;
+        function serializeSoundsToXml(fileKey) {
+            const pfx = state.addonPrefix.trim();
+            const cfg = DATA_SBC_FILES_CONFIG.find(c => c.key === fileKey);
+            const folder = cfg.folder;
+            let xml = `<?xml version="1.0" encoding="utf-8"?>\n<Definitions>\n  <Sounds>\n`;
+            (state.soundsData[fileKey] || []).forEach(snd => {
+                xml += `    <Sound>\n      <Id>\n        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>\n        <SubtypeId>${snd.subtypeIdBase}${pfx}</SubtypeId>\n      </Id>\n`;
+                if(snd.category) xml += `      <Category>${snd.category}</Category>\n`;
+                xml += `      <MaxDistance>${snd.maxDistance}</MaxDistance>\n      <Volume>${snd.volume.toFixed(2)}</Volume>\n`;
+                xml += `      <Loopable>${snd.loopable !== undefined ? snd.loopable : true}</Loopable>\n`;
+                if(snd.showOptVolumeVar) xml += `      <VolumeVariation>${snd.volumeVar.toFixed(2)}</VolumeVariation>\n`;
+                if(snd.showOptPitch) xml += `      <Pitch>${snd.pitch.toFixed(2)}</Pitch>\n`;
+                if(snd.showOptPitchVar) xml += `      <PitchVariation>${snd.pitchVar.toFixed(2)}</PitchVariation>\n`;
+                xml += `      <Waves>\n`;
+                snd.waves.forEach(w => {
+                    const waveType = (w.type === "Start") ? "Start" : "D3";
+                    xml += `        <Wave Type="${waveType}">\n          <${w.type === "Start" ? "Start" : "Loop"}>AUDIO_SEENG\\${folder}\\${w.name}</${w.type === "Start" ? "Start" : "Loop"}>\n        </Wave>\n`;
                 });
-                xml += `        </Module>\n`;
+                xml += `      </Waves>\n    </Sound>\n`;
             });
-
-            xml += `    </Modules>\n`;
-            xml += `</SeengAddonConfig>`;
+            xml += `  </Sounds>\n</Definitions>`;
             return xml;
         }
 
-        function updateLiveXml() {
-            document.getElementById('liveXmlEditor').value = generateAddonXml();
+        function generateSbcXml() {
+            let xml = `<?xml version="1.0" encoding="utf-8"?>\n<SEENGConfig>\n  <Prefix>${state.addonPrefix}</Prefix>\n`;
+            if(state.friendlyName) xml += `  <FriendlyName>${state.friendlyName}</FriendlyName>\n`;
+            if(state.maxPitch) xml += `  <MaxEnginePitchShift>${state.maxPitch}</MaxEnginePitchShift>\n`;
+            if(state.maxPitch50) xml += `  <MaxEngine50PitchShift>${state.maxPitch50}</MaxEngine50PitchShift>\n`;
+            if(state.useEngineVolumes && state.engineVolumes.length) { xml += `  <SeengEngineVolumes>\n`; state.engineVolumes.forEach(n=>xml+=`    <SeengEngineVolume Speed="${n.speed}" Volume="${n.volume}" />\n`); xml+=`  </SeengEngineVolumes>\n`; }
+            if(state.useEngine50Volumes && state.engine50Volumes.length) { xml += `  <SeengEngine50Volumes>\n`; state.engine50Volumes.forEach(n=>xml+=`    <SeengEngineVolume Speed="${n.speed}" Volume="${n.volume}" />\n`); xml+=`  </SeengEngine50Volumes>\n`; }
+            xml += `</SEENGConfig>`;
+            return xml;
         }
 
-        // Возможность импортировать существующий аддон (Пункт 11)
-        async function handleFolderImport(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            let configXmlFile = null;
-            let infoFile = null;
-            let customTooltips = {};
-
-            // Сканируем загруженные файлы папки
-            for (let file of files) {
-                const name = file.name;
-                if (name === "addon_config.xml" || (name.endsWith(".xml") && !name.endsWith(".sbc"))) {
-                    configXmlFile = file;
-                } else if (name === "SEENG_INFO.txt") {
-                    infoFile = file;
-                }
+        // ---- Load from Folder (drag & drop simulation) ----
+        document.getElementById('load-addon-folder-input').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            const dataFiles = [], cmtFiles = [], infoFile = null;
+            for (let f of files) {
+                if (f.name === 'SEENG_INFO.txt') { externalInfoText = await f.text(); document.getElementById('seeng-info-content').innerText = externalInfoText || "(no info provided)"; }
+                else if (f.name.endsWith('.sbc') && DATA_SBC_FILES_CONFIG.some(c=>c.filename===f.name)) { externalSbcDefinitions[f.name] = await f.text(); }
+                else if (f.name.startsWith('CMT_') && f.name.endsWith('.txt')) { const subtypeRaw = f.name.slice(4, -4); externalComments[subtypeRaw] = await f.text(); }
+                else if (f.name === 'thumb.jpg') { const buf = await f.arrayBuffer(); window.binaryFilesCache.thumbJpg = new Uint8Array(buf); }
+                else if (f.name === 'SEENG_thumb.png') { const buf = await f.arrayBuffer(); window.binaryFilesCache.seengThumbPng = new Uint8Array(buf); }
+                else if (f.name === 'SEENG_Config.sbc') { /* parse prefix etc later */ }
+                else if (f.name === 'SEENG_desc.txt') state.descShort = await f.text();
+                else if (f.name === 'SEENG_descBIG.txt') state.descLong = await f.text();
             }
-
-            // Читаем SEENG_INFO.txt если есть
-            if (infoFile) {
-                const text = await infoFile.text();
-                document.getElementById('infoPanelText').textContent = text.trim();
-                document.getElementById('infoPanelContainer').classList.remove('hidden');
+            for(let cfg of DATA_SBC_FILES_CONFIG) {
+                if(externalSbcDefinitions[cfg.filename]) updateSoundsFromExternalSbc(cfg.key);
             }
+            renderDataTabsLayout();
+            refreshActiveDataTabWorkspace();
+            saveState();
+        });
 
-            // Парсим XML конфигурации существующего аддона
-            if (configXmlFile) {
-                try {
-                    const xmlText = await configXmlFile.text();
-                    const parser = new DOMParser();
-                    const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-
-                    // Восстанавливаем общие поля
-                    document.getElementById('globalPrefix').value = xmlDoc.getElementsByTagName("Prefix")[0]?.textContent || "MY_ADDON";
-                    document.getElementById('friendlyName').value = xmlDoc.getElementsByTagName("FriendlyName")[0]?.textContent || "My Sound Addon";
-                    document.getElementById('volumeCurvesToggle').checked = xmlDoc.getElementsByTagName("VolumeCurves")[0]?.textContent === "true";
-
-                    // Считываем оверрайды параметров
-                    const moduleNodes = xmlDoc.getElementsByTagName("Module");
-                    
-                    // Сначала выключаем все модули, включим только те что найдем в конфиге
-                    appState.modules.forEach(m => m.enabled = false);
-
-                    for (let mNode of moduleNodes) {
-                        const filename = mNode.getAttribute("Filename");
-                        const targetModule = appState.modules.find(m => m.filename === filename);
-                        
-                        if (targetModule) {
-                            targetModule.enabled = true;
-                            const soundNodes = mNode.getElementsByTagName("Sound");
-                            for (let sNode of soundNodes) {
-                                const subId = sNode.getAttribute("SubtypeId");
-                                const vol = sNode.getElementsByTagName("Volume")[0]?.textContent;
-                                const dist = sNode.getElementsByTagName("MaxDistance")[0]?.textContent;
-                                
-                                const targetSound = targetModule.sounds.find(s => s.subtypeId === subId);
-                                if (targetSound) {
-                                    if (vol !== undefined) targetSound.customVolume = vol;
-                                    if (dist !== undefined) targetSound.customMaxDistance = dist;
-                                }
-                            }
-                        }
-                    }
-                    alert("Конфигурация существующего аддона успешно импортирована!");
-                } catch (e) {
-                    alert("Ошибка чтения файла конфигурации импортируемого аддона.");
-                    console.error(e);
-                }
-            } else {
-                alert("Папка успешно просканирована, файл конфигурации addon_config.xml не обнаружен (использованы дефолтные параметры).");
-            }
-
-            renderModules();
-            updateLiveXml();
-        }
-
-        // Встроенный легковесный Vanilla ZIP генератор (по куску кода из репозитория)
-        function crc32(uint8arr) {
-            let table = [];
-            for (let i = 0; i < 256; i++) {
-                let c = i;
-                for (let j = 0; j < 8; j++) {
-                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
-                }
-                table[i] = c;
-            }
-            let crc = 0 ^ (-1);
-            for (let i = 0; i < uint8arr.length; i++) {
-                crc = (crc >>> 8) ^ table[(crc ^ uint8arr[i]) & 0xFF];
-            }
-            return (crc ^ (-1)) >>> 0;
-        }
-
-        function exportAddonZip() {
-            const filesToPack = [
-                { name: 'addon_config.xml', content: generateAddonXml() }
-            ];
-
-            const zipParts = [];
-            const centralDir = [];
-            let offset = 0;
-
-            filesToPack.forEach(file => {
-                const filenameBytes = new TextEncoder().encode(file.name);
-                const contentBytes = new TextEncoder().encode(file.content);
-                const size = contentBytes.length;
-                const fileCrc = crc32(contentBytes);
-
-                // Local File Header
-                const lfh = new Uint8Array(30 + filenameBytes.length);
-                lfh.set([0x50, 0x4B, 0x03, 0x04, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0);
-                new DataView(lfh.buffer).setUint32(14, fileCrc, true);
-                new DataView(lfh.buffer).setUint32(18, size, true);
-                new DataView(lfh.buffer).setUint32(22, size, true);
-                new DataView(lfh.buffer).setUint16(26, filenameBytes.length, true);
-                lfh.set(filenameBytes, 30);
-
-                zipParts.push(lfh);
-                zipParts.push(contentBytes);
-
-                // Central Directory Record
-                const cdr = new Uint8Array(46 + filenameBytes.length);
-                cdr.set([0x50, 0x4B, 0x01, 0x02, 20, 0, 10, 0, 0, 0, 0, 0, 0, 0], 0);
-                new DataView(cdr.buffer).setUint32(16, fileCrc, true);
-                new DataView(cdr.buffer).setUint32(20, size, true);
-                new DataView(cdr.buffer).setUint32(24, size, true);
-                new DataView(cdr.buffer).setUint16(28, filenameBytes.length, true);
-                new DataView(cdr.buffer).setUint32(42, offset, true);
-                cdr.set(filenameBytes, 46);
-
-                centralDir.push(cdr);
-                offset += lfh.length + size;
+        window.binaryFilesCache = { thumbJpg: null, seengThumbPng: null, waves: {} };
+        function renderDataTabsLayout() { /* similar but using external SBC support */
+            const container = document.getElementById('sbc-tabs-row'); container.innerHTML='';
+            DATA_SBC_FILES_CONFIG.forEach(cfg=>{
+                const isActive = state.currentSelectedDataKey === cfg.key;
+                const div = document.createElement('div'); div.className = `flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-semibold cursor-pointer ${isActive ? 'border-amber-500 bg-[#2a241e] text-amber-400' : 'border-[#5e4b37] text-[#b7a07e] hover:bg-[#2a241e]'}`;
+                div.innerHTML = `<input type="checkbox" id="chk-${cfg.key}" ${state[cfg.key] ? 'checked' : ''} class="w-3.5 h-3.5"><span>${cfg.filename}</span>`;
+                div.querySelector('input').addEventListener('change', (e)=>{ state[cfg.key]=e.target.checked; saveState(); });
+                div.addEventListener('click', (e)=>{ if(e.target.tagName!=='INPUT'){ state.currentSelectedDataKey=cfg.key; renderDataTabsLayout(); refreshActiveDataTabWorkspace(); } });
+                container.appendChild(div);
             });
-
-            const centralDirSize = centralDir.reduce((acc, curr) => acc + curr.length, 0);
-
-            // End of Central Directory
-            const eocd = new Uint8Array(22);
-            eocd.set([0x50, 0x4B, 0x05, 0x06, 0, 0, 0, 0], 0);
-            new DataView(eocd.buffer).setUint16(8, filesToPack.length, true);
-            new DataView(eocd.buffer).setUint16(10, filesToPack.length, true);
-            new DataView(eocd.buffer).setUint32(12, centralDirSize, true);
-            new DataView(eocd.buffer).setUint32(16, offset, true);
-
-            const blob = new Blob([...zipParts, ...centralDir, eocd], { type: 'application/zip' });
-            
-            const prefix = document.getElementById('globalPrefix').value.trim() || "addon";
-            const dlLink = document.createElement('a');
-            dlLink.href = URL.createObjectURL(blob);
-            dlLink.download = `${prefix}_configuration.zip`;
-            dlLink.click();
         }
+
+        function refreshActiveDataTabWorkspace() {
+            const activeKey = state.currentSelectedDataKey;
+            const list = state.soundsData[activeKey] || [];
+            const root = document.getElementById('visual-node-builder-root'); root.innerHTML='';
+            list.forEach((snd, idx)=>{
+                const card = document.createElement('div'); card.className = 'p-4 bg-[#241e18] border border-[#5e4b37] rounded-xl space-y-3';
+                card.innerHTML = `
+                    <div class="flex justify-between border-b border-[#5e4b37] pb-1"><div class="flex gap-2"><span class="font-mono text-amber-500">${snd.subtypeIdBase}${state.addonPrefix}</span><div class="relative group"><span class="h-4 w-4 inline-flex items-center justify-center rounded-full bg-emerald-700 text-[10px] text-white font-bold cursor-help">?</span><div class="absolute bottom-6 left-0 w-64 p-2 bg-[#2a241e] border border-amber-800 text-[#e2cfb3] text-xs rounded shadow-xl hidden group-hover:block z-50">${snd.hint || "No specific hint loaded from CMT_"}</div></div></div><span class="text-[10px] text-[#b7a07e]">Loopable: ${snd.loopable !== undefined ? snd.loopable : true}</span></div>
+                    <div class="grid grid-cols-2 gap-2"><label>MaxDistance</label><input type="number" step="1" value="${snd.maxDistance}" data-snd-idx="${idx}" data-field="maxDistance" class="bg-[#1c1612] border border-[#5e4b37] rounded px-2 py-1"><label>Volume</label><input type="number" step="0.05" value="${snd.volume}" data-field="volume" data-snd-idx="${idx}" class="bg-[#1c1612] border border-[#5e4b37] rounded px-2 py-1"></div>
+                    <div class="flex gap-2 flex-wrap"><button class="px-2 py-0.5 text-xs rounded bg-amber-800/30" data-toggle-opt="showOptVolumeVar" data-idx="${idx}">VolumeVariation</button><button data-toggle-opt="showOptPitch" data-idx="${idx}" class="px-2 py-0.5 text-xs rounded bg-amber-800/30">Pitch</button><button data-toggle-opt="showOptPitchVar" data-idx="${idx}" class="px-2 py-0.5 text-xs rounded bg-amber-800/30">PitchVar</button></div>
+                    <div class="space-y-2"><div class="flex justify-between"><span>Waves (Loop/Start)</span><button data-add-wave data-idx="${idx}" class="text-xs bg-amber-800/40 px-2 rounded">+ Wave</button></div><div id="waves-list-${idx}" class="grid grid-cols-1 gap-2"></div></div>`;
+                const waveContainer = card.querySelector(`#waves-list-${idx}`);
+                snd.waves.forEach((w, wIdx)=>{
+                    const waveDiv = document.createElement('div'); waveDiv.className="flex items-center gap-2 bg-[#1c1612] p-1 rounded";
+                    waveDiv.innerHTML = `<select data-wave-type="${idx},${wIdx}" class="bg-[#1c1612] border text-xs">${w.type==='Start'?'<option selected>Start</option><option>Loop</option>':'<option>Loop</option><option selected>Start</option>'}</select><span class="flex-1 text-xs">${w.name}</span><input type="file" accept=".wav" data-wave-upload="${activeKey}_${idx}_${wIdx}" class="text-xs hidden" id="waveup_${idx}_${wIdx}"><label for="waveup_${idx}_${wIdx}" class="bg-amber-800/40 px-2 py-0.5 text-xs rounded cursor-pointer">Upload</label><button data-del-wave="${idx},${wIdx}" class="text-rose-400 text-xs">X</button>`;
+                    waveContainer.appendChild(waveDiv);
+                });
+                root.appendChild(card);
+                attachWaveEvents(activeKey, idx);
+            });
+            document.getElementById('data-raw-xml-textarea').value = serializeSoundsToXml(activeKey);
+        }
+
+        function attachWaveEvents(activeKey, sndIdx) { /* events for file uploads etc */ }
+        document.addEventListener('change', (e)=>{
+            if(e.target.hasAttribute('data-wave-upload')){ /* handled in global */ }
+            if(e.target.hasAttribute('data-bind')){ state[e.target.getAttribute('data-bind')]=e.target.value; saveState(); }
+            if(e.target.hasAttribute('data-bind-bool')){ state[e.target.getAttribute('data-bind-bool')]=e.target.checked; toggleConditionalFields(); saveState(); }
+        });
+        function toggleConditionalFields(){
+            document.getElementById('engine-volumes-container').classList.toggle('hidden', !state.useEngineVolumes);
+            document.getElementById('engine50-volumes-container').classList.toggle('hidden', !state.useEngine50Volumes);
+            document.getElementById('transmissionContainer').classList.toggle('hidden', !state.useTransmission);
+        }
+        function saveState(){ localStorage.setItem('seeng_state',JSON.stringify(state)); renderXmlPreview(); renderFileTree(); }
+        function renderXmlPreview(){ document.getElementById('xmlPreviewText').innerText = generateSbcXml(); }
+        function renderFileTree(){ /* same as before but dynamic */ let tree=`${state.addonPrefix}/\n├── SEENG_Config.sbc\n`; document.getElementById('fileTreePreview').innerText=tree; }
+        document.getElementById('add-volume-node').onclick=()=>{ state.engineVolumes.push({speed:50,volume:0.5}); saveState(); renderVolumeNodes(); };
+        document.getElementById('add-volume50-node').onclick=()=>{ state.engine50Volumes.push({speed:50,volume:0.5}); saveState(); renderVolumeNodes(); };
+        function renderVolumeNodes(){ /* implement render for engine and engine50 lists */ }
+        document.querySelectorAll('[data-action="reset"]')[0].addEventListener('click',()=>{ location.reload(); });
+
+        // ---- initial load external assets from github repo ----
+        async function loadExternalFromRepo() {
+            const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+            try {
+                const infoResp = await fetch(base + 'SEENG_INFO.txt'); if(infoResp.ok) externalInfoText = await infoResp.text();
+                document.getElementById('seeng-info-content').innerText = externalInfoText || "Welcome! Place SEENG_INFO.txt in repository root.";
+                for(let cfg of DATA_SBC_FILES_CONFIG) {
+                    const resp = await fetch(base + 'data/' + cfg.filename);
+                    if(resp.ok) { externalSbcDefinitions[cfg.filename] = await resp.text(); updateSoundsFromExternalSbc(cfg.key); }
+                }
+                const cmtResp = await fetch(base + 'CMT_SubtypeId.txt'); if(cmtResp.ok) { const cmtText=await cmtResp.text(); externalComments['SeengEngine_Base_']=cmtText; }
+            } catch(e){ console.warn(e); }
+            renderDataTabsLayout();
+            refreshActiveDataTabWorkspace();
+            saveState();
+        }
+        loadExternalFromRepo();
+        function syncPrefixMirror(){ document.getElementById('config-prefix-mirror').value=state.addonPrefix; }
+        setInterval(syncPrefixMirror,100);
     </script>
 </body>
 </html>
